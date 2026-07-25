@@ -191,9 +191,11 @@ Integrated Google Gemini assistant provides:
               | Google Gemini API    |
               | AI Recommendations   |
               +----------------------+
+```
 
+---
 
-```text
+```
 GigScore/
 ├── backend/
 │   └── gigscore/
