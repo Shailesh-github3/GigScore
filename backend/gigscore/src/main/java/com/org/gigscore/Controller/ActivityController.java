@@ -9,19 +9,26 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.org.gigscore.DTO.ActivityResponse;
 import com.org.gigscore.Service.ActivityService;
+import com.org.gigscore.exception.UnauthorizedAccessException;
+import com.org.gigscore.security.CurrentUserResolver;
 
 @RestController
 @RequestMapping("/api/activity")
 public class ActivityController {
 
     private final ActivityService activityService;
+    private final CurrentUserResolver currentUserResolver;
 
-    public ActivityController(ActivityService activityService) {
+    public ActivityController(ActivityService activityService, CurrentUserResolver currentUserResolver) {
         this.activityService = activityService;
+        this.currentUserResolver = currentUserResolver;
     }
 
     @GetMapping("/{userId}")
     public List<ActivityResponse> getRecentActivities(@PathVariable Long userId) {
+        if (!currentUserResolver.getCurrentUserId().equals(userId)) {
+            throw new UnauthorizedAccessException("Access denied.");
+        }
         return activityService.getLatestActivities(userId);
     }
 }

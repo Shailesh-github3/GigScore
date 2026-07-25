@@ -1,0 +1,33 @@
+package com.org.gigscore.security;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import com.org.gigscore.Entity.User;
+import com.org.gigscore.Repository.UserRepository;
+import com.org.gigscore.exception.ResourceNotFoundException;
+
+@Component
+public class CurrentUserResolver {
+
+    private final UserRepository userRepository;
+
+    public CurrentUserResolver(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ResourceNotFoundException("User not found");
+        }
+        String email = authentication.getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    public Long getCurrentUserId() {
+        return getCurrentUser().getUserId();
+    }
+}

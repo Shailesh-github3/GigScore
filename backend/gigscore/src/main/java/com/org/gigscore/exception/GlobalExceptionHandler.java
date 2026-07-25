@@ -32,6 +32,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedAccess(UnauthorizedAccessException exception) {
+        ErrorResponse error = new ErrorResponse(HttpStatus.FORBIDDEN.value(), exception.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
     @ExceptionHandler(GeminiApiException.class)
     public ResponseEntity<ErrorResponse> handleGeminiApi(GeminiApiException exception) {
         ErrorResponse error = new ErrorResponse(HttpStatus.BAD_GATEWAY.value(), "Unable to get AI response right now.");

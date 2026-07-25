@@ -13,14 +13,18 @@ import com.org.gigscore.DTO.LoginDTO;
 import com.org.gigscore.DTO.LoginResponseDTO;
 import com.org.gigscore.DTO.UserDashboardResponse;
 import com.org.gigscore.Service.UserService;
+import com.org.gigscore.exception.UnauthorizedAccessException;
+import com.org.gigscore.security.CurrentUserResolver;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
     final UserService userService;
-    public UserController(UserService userService) {
+    final CurrentUserResolver currentUserResolver;
+    public UserController(UserService userService, CurrentUserResolver currentUserResolver) {
         this.userService = userService;
+        this.currentUserResolver = currentUserResolver;
     }
 
     @PostMapping
@@ -30,6 +34,9 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public UserDashboardResponse getUserDetails(@PathVariable Long userId) {
+        if (!currentUserResolver.getCurrentUserId().equals(userId)) {
+            throw new UnauthorizedAccessException("Access denied.");
+        }
         return userService.getUserDashboard(userId);
     }
 
@@ -37,7 +44,5 @@ public class UserController {
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginDTO request) {
         return userService.Login(request);
     }
-
-    
 
 }
