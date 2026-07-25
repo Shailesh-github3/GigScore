@@ -22,7 +22,6 @@ A full-stack application for gig workers and freelancers to track performance ac
 
 Gig workers often work across multiple platforms such as delivery apps and freelancing websites. Their earnings, ratings, and performance metrics are distributed across different platforms.
 
-<<<<<<< HEAD
 GigScore solves this problem by providing:
 
 * A centralized performance dashboard
@@ -72,7 +71,6 @@ GigScore solves this problem by providing:
 
 Supported platforms:
 
-<<<<<<< HEAD
 * Swiggy
 * Zomato
 * Uber
@@ -222,7 +220,6 @@ GigScore/
 
 ---
 
-<<<<<<< HEAD
 # Complete User Flow
 
 ```
@@ -652,7 +649,6 @@ Copy `backend/gigscore/.env.example` and fill in your values:
 CREATE DATABASE gigscore;
 ```
 
-<<<<<<< HEAD
 ---
 
 # Backend Setup
@@ -708,7 +704,6 @@ Run:
 npm run dev
 ```
 
-<<<<<<< HEAD
 Frontend:
 
 ```
@@ -869,7 +864,6 @@ Recommended commit pattern going forward: one commit per phase or logical unit o
 
 ## Why MySQL?
 
-<<<<<<< HEAD
 * Structured relational data
 * ACID transactions
 * Strong consistency for financial metrics
@@ -953,4 +947,3 @@ Currently unlicensed.
 Add a LICENSE file before open-source distribution.
 
 This project is unlicensed. Add a `LICENSE` file if you plan to distribute it.
-
