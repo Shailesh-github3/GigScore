@@ -1,13 +1,13 @@
-package com.org.gigscore.Controller;
+package com.org.gigscore.controller;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.org.gigscore.DTO.ChatRequestDTO;
-import com.org.gigscore.DTO.ChatResponseDTO;
-import com.org.gigscore.Service.GeminiChatService;
+import com.org.gigscore.dto.ChatRequestDTO;
+import com.org.gigscore.dto.ChatResponseDTO;
+import com.org.gigscore.service.GeminiChatService;
 import com.org.gigscore.exception.BadRequestException;
 import com.org.gigscore.exception.GeminiApiException;
 

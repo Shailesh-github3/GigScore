@@ -1,8 +1,8 @@
-package com.org.gigscore.Repository;
+package com.org.gigscore.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.org.gigscore.Entity.User;
+import com.org.gigscore.entity.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 

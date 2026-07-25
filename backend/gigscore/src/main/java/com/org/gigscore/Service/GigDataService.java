@@ -1,4 +1,4 @@
-package com.org.gigscore.Service;
+package com.org.gigscore.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,14 +7,14 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.org.gigscore.DTO.GigEventRequest;
-import com.org.gigscore.DTO.GigSummaryResponse;
-import com.org.gigscore.DTO.UserDashboardResponse;
-import com.org.gigscore.Entity.GigData;
-import com.org.gigscore.Entity.User;
-import com.org.gigscore.Repository.GigDataRepository;
-import com.org.gigscore.Repository.UserRepository;
-import com.org.gigscore.Service.UserMetricsService.UserAggregateMetrics;
+import com.org.gigscore.dto.GigEventRequest;
+import com.org.gigscore.dto.GigSummaryResponse;
+import com.org.gigscore.dto.UserDashboardResponse;
+import com.org.gigscore.entity.GigData;
+import com.org.gigscore.entity.User;
+import com.org.gigscore.repository.GigDataRepository;
+import com.org.gigscore.repository.UserRepository;
+import com.org.gigscore.service.UserMetricsService.UserAggregateMetrics;
 import com.org.gigscore.exception.BadRequestException;
 import com.org.gigscore.exception.ResourceNotFoundException;
 
@@ -122,6 +122,7 @@ public class GigDataService {
                 return primary;
         }
 
+    @Transactional(readOnly = true)
     public UserDashboardResponse getUserDashboard(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));

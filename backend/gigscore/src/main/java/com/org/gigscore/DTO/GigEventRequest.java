@@ -1,4 +1,4 @@
-package com.org.gigscore.DTO;
+package com.org.gigscore.dto;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

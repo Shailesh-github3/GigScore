@@ -1,12 +1,12 @@
-package com.org.gigscore.Repository;
+package com.org.gigscore.repository;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.org.gigscore.Entity.GigData;
-import com.org.gigscore.Entity.User;
+import com.org.gigscore.entity.GigData;
+import com.org.gigscore.entity.User;
 
 public interface GigDataRepository extends JpaRepository<GigData, Long> {
 

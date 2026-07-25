@@ -1,4 +1,4 @@
-package com.org.gigscore.Controller;
+package com.org.gigscore.controller;
 
 import java.util.List;
 
@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.org.gigscore.DTO.ActivityResponse;
-import com.org.gigscore.Service.ActivityService;
+import com.org.gigscore.dto.ActivityResponse;
+import com.org.gigscore.service.ActivityService;
 import com.org.gigscore.exception.UnauthorizedAccessException;
 import com.org.gigscore.security.CurrentUserResolver;
 

@@ -1,17 +1,18 @@
-package com.org.gigscore.Service;
+package com.org.gigscore.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.org.gigscore.Config.JWTutill;
-import com.org.gigscore.DTO.CreateUserRequest;
-import com.org.gigscore.DTO.LoginDTO;
-import com.org.gigscore.DTO.LoginResponseDTO;
-import com.org.gigscore.DTO.UserDashboardResponse;
-import com.org.gigscore.Entity.User;
-import com.org.gigscore.Repository.UserRepository;
+import com.org.gigscore.config.JwtUtil;
+import com.org.gigscore.dto.CreateUserRequest;
+import com.org.gigscore.dto.LoginDTO;
+import com.org.gigscore.dto.LoginResponseDTO;
+import com.org.gigscore.dto.UserDashboardResponse;
+import com.org.gigscore.entity.User;
+import com.org.gigscore.repository.UserRepository;
 import com.org.gigscore.exception.DuplicateResourceException;
 import com.org.gigscore.exception.UnauthorizedException;
 
@@ -22,17 +23,18 @@ public class UserService {
 
     final UserRepository userRepository;
     final GigDataService gigDataService;
-    private final JWTutill jwtUtil;
+    private final JwtUtil jwtUtil;
         
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, GigDataService gigDataService, JWTutill jwtUtil) {
+    public UserService(UserRepository userRepository, GigDataService gigDataService, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.gigDataService = gigDataService;
         this.jwtUtil = jwtUtil;
     }
 
+    @Transactional
     public ResponseEntity<LoginResponseDTO> createUser(CreateUserRequest request) {
         String normalizedEmail = request.getEmail().trim().toLowerCase();
         if (userRepository.findByEmail(normalizedEmail).isPresent()) {
@@ -60,7 +62,7 @@ public class UserService {
         return gigDataService.getUserDashboard(userId);
     }
 
-    public ResponseEntity<LoginResponseDTO> Login(LoginDTO request) {
+    public ResponseEntity<LoginResponseDTO> login(LoginDTO request) {
         String normalizedEmail = request.getEmail().trim().toLowerCase();
 
         User user = userRepository.findByEmail(normalizedEmail)

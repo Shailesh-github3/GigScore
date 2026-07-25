@@ -1,4 +1,4 @@
-package com.org.gigscore.Entity;
+package com.org.gigscore.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

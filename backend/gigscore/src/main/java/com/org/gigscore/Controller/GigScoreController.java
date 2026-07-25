@@ -1,13 +1,13 @@
-package com.org.gigscore.Controller;
+package com.org.gigscore.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.org.gigscore.DTO.ScoreResponse;
-import com.org.gigscore.Entity.User;
-import com.org.gigscore.Repository.UserRepository;
-import com.org.gigscore.Service.GigScoreService;
+import com.org.gigscore.dto.ScoreResponse;
+import com.org.gigscore.entity.User;
+import com.org.gigscore.repository.UserRepository;
+import com.org.gigscore.service.GigScoreService;
 import com.org.gigscore.exception.ResourceNotFoundException;
 import com.org.gigscore.exception.UnauthorizedAccessException;
 import com.org.gigscore.security.CurrentUserResolver;

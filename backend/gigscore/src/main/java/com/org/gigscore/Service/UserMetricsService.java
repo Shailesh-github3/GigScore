@@ -1,12 +1,12 @@
-package com.org.gigscore.Service;
+package com.org.gigscore.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.org.gigscore.Entity.GigData;
-import com.org.gigscore.Entity.User;
-import com.org.gigscore.Repository.GigDataRepository;
+import com.org.gigscore.entity.GigData;
+import com.org.gigscore.entity.User;
+import com.org.gigscore.repository.GigDataRepository;
 
 @Service
 public class UserMetricsService {

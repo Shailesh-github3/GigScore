@@ -1,4 +1,4 @@
-package com.org.gigscore.DTO;
+package com.org.gigscore.dto;
 
 import java.time.LocalDateTime;
 

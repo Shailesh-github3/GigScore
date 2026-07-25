@@ -1,4 +1,4 @@
-package com.org.gigscore.Service;
+package com.org.gigscore.service;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.org.gigscore.DTO.ChatMessageDTO;
+import com.org.gigscore.dto.ChatMessageDTO;
 import com.org.gigscore.exception.BadRequestException;
 import com.org.gigscore.exception.GeminiApiException;
 

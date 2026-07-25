@@ -4,8 +4,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import com.org.gigscore.Entity.User;
-import com.org.gigscore.Repository.UserRepository;
+import com.org.gigscore.entity.User;
+import com.org.gigscore.repository.UserRepository;
 import com.org.gigscore.exception.ResourceNotFoundException;
 
 @Component

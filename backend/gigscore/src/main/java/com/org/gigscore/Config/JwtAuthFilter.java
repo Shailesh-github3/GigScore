@@ -1,4 +1,4 @@
-package com.org.gigscore.Config;
+package com.org.gigscore.config;
 
 import java.io.IOException;
 
@@ -16,9 +16,9 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    private final JWTutill jwtUtil;
+    private final JwtUtil jwtUtil;
 
-    public JwtAuthFilter(JWTutill jwtUtil) {
+    public JwtAuthFilter(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
     }
 

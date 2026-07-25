@@ -1,4 +1,4 @@
-package com.org.gigscore.Entity;
+package com.org.gigscore.entity;
 
 import java.time.LocalDateTime;
 

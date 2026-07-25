@@ -1,4 +1,4 @@
-package com.org.gigscore.Config;
+package com.org.gigscore.config;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -10,12 +10,12 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
 @Component
-public class JWTutill {
+public class JwtUtil {
     private final long expirationTime=3600000; // 1 hour
 
     private final Key key;
 
-    public JWTutill(@Value("${jwt.secret}") String jwtSecret) {
+    public JwtUtil(@Value("${jwt.secret}") String jwtSecret) {
         this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 

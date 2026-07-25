@@ -1,4 +1,4 @@
-package com.org.gigscore.Controller;
+package com.org.gigscore.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.org.gigscore.DTO.GigEventRequest;
-import com.org.gigscore.DTO.UserDashboardResponse;
-import com.org.gigscore.Service.GigDataService;
+import com.org.gigscore.dto.GigEventRequest;
+import com.org.gigscore.dto.UserDashboardResponse;
+import com.org.gigscore.service.GigDataService;
 import com.org.gigscore.security.CurrentUserResolver;
 
 @RestController

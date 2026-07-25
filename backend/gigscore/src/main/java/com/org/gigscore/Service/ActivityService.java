@@ -1,15 +1,16 @@
-package com.org.gigscore.Service;
+package com.org.gigscore.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.org.gigscore.DTO.ActivityResponse;
-import com.org.gigscore.Entity.Activity;
-import com.org.gigscore.Entity.User;
-import com.org.gigscore.Repository.ActivityRepository;
-import com.org.gigscore.Repository.UserRepository;
+import com.org.gigscore.dto.ActivityResponse;
+import com.org.gigscore.entity.Activity;
+import com.org.gigscore.entity.User;
+import com.org.gigscore.repository.ActivityRepository;
+import com.org.gigscore.repository.UserRepository;
 import com.org.gigscore.exception.ResourceNotFoundException;
 
 @Service
@@ -23,6 +24,7 @@ public class ActivityService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public void recordGigAdded(User user, String platform, Double amount, Double rating) {
         Activity activity = new Activity();
         activity.setUser(user);

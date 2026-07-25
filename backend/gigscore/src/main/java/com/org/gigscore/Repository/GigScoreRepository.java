@@ -1,15 +1,12 @@
-package com.org.gigscore.Repository;
+package com.org.gigscore.repository;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.org.gigscore.Entity.GigScore;
-import com.org.gigscore.Entity.User;
+import com.org.gigscore.entity.GigScore;
+import com.org.gigscore.entity.User;
 
 public interface  GigScoreRepository extends JpaRepository<GigScore, Long> {
     Optional<GigScore> findByUser(User user);
-    List<GigScore> findAllByUser(User user);
-    
 }

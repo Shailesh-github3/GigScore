@@ -1,15 +1,13 @@
-package com.org.gigscore.Service;
-
-import java.util.ArrayList;
-import java.util.List;
+package com.org.gigscore.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.org.gigscore.DTO.ScoreResponse;
-import com.org.gigscore.Entity.GigScore;
-import com.org.gigscore.Entity.User;
-import com.org.gigscore.Repository.GigScoreRepository;
-import com.org.gigscore.Service.UserMetricsService.UserAggregateMetrics;
+import com.org.gigscore.dto.ScoreResponse;
+import com.org.gigscore.entity.GigScore;
+import com.org.gigscore.entity.User;
+import com.org.gigscore.repository.GigScoreRepository;
+import com.org.gigscore.service.UserMetricsService.UserAggregateMetrics;
 
 @Service
 public class GigScoreService {
@@ -39,6 +37,7 @@ public class GigScoreService {
         this.userMetricsService = userMetricsService;
     }
 
+    @Transactional
     public ScoreResponse calculateAndPersistScore(User user) {
         UserAggregateMetrics metrics = userMetricsService.calculateAggregates(user);
         double score = calculateScoreValue(metrics);
@@ -89,21 +88,7 @@ public class GigScoreService {
     }
 
     private GigScore resolveOrCreateUserGigScore(User user) {
-        List<GigScore> scores = new ArrayList<>(gigScoreRepository.findAllByUser(user));
-        if (scores.isEmpty()) {
-            return new GigScore();
-        }
-
-        GigScore primary = scores.get(0);
-        if (scores.size() == 1) {
-            return primary;
-        }
-
-        for (int i = 1; i < scores.size(); i++) {
-            gigScoreRepository.delete(scores.get(i));
-        }
-
-        return primary;
+        return gigScoreRepository.findByUser(user).orElseGet(GigScore::new);
     }
 
 }
