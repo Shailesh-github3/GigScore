@@ -1,5 +1,7 @@
 package com.org.gigscore.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,6 +15,7 @@ import com.org.gigscore.exception.UnauthorizedAccessException;
 import com.org.gigscore.security.CurrentUserResolver;
 
 @RestController
+@Tag(name = "Score", description = "Gig performance score")
 public class GigScoreController {
     final GigScoreService gigScoreService;
     final UserRepository userRepository;
@@ -23,6 +26,7 @@ public class GigScoreController {
         this.currentUserResolver = currentUserResolver;
     }
 
+    @Operation(summary = "Calculate and return the user's weighted gig score (0-100)")
     @GetMapping("/score/{userId}")
     public ScoreResponse getScore(@PathVariable Long userId){
         if (!currentUserResolver.getCurrentUserId().equals(userId)) {

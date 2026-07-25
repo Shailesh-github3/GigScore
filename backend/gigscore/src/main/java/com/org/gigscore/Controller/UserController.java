@@ -1,5 +1,7 @@
 package com.org.gigscore.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +21,7 @@ import com.org.gigscore.security.CurrentUserResolver;
 
 @RestController
 @RequestMapping("/api/users")
+@Tag(name = "Users", description = "Registration, login and user dashboard")
 public class UserController {
 
     final UserService userService;
@@ -28,11 +31,13 @@ public class UserController {
         this.currentUserResolver = currentUserResolver;
     }
 
+    @Operation(summary = "Register a new user and receive a JWT token")
     @PostMapping
     public ResponseEntity<LoginResponseDTO> createUser(@Valid @RequestBody CreateUserRequest request){
         return userService.createUser(request);
     }
 
+    @Operation(summary = "Get user dashboard with score breakdown and gig summaries")
     @GetMapping("/{userId}")
     public UserDashboardResponse getUserDetails(@PathVariable Long userId) {
         if (!currentUserResolver.getCurrentUserId().equals(userId)) {
@@ -41,6 +46,7 @@ public class UserController {
         return userService.getUserDashboard(userId);
     }
 
+    @Operation(summary = "Login with email and password to receive a JWT token")
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginDTO request) {
         return userService.login(request);

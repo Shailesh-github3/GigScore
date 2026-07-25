@@ -1,5 +1,7 @@
 package com.org.gigscore.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +15,7 @@ import com.org.gigscore.exception.GeminiApiException;
 
 @RestController
 @RequestMapping("/api/chat")
+@Tag(name = "AI Chat", description = "AI-powered score guidance via Gemini")
 public class ChatController {
 
     private final GeminiChatService geminiChatService;
@@ -21,6 +24,7 @@ public class ChatController {
         this.geminiChatService = geminiChatService;
     }
 
+    @Operation(summary = "Send chat messages and receive an AI-generated reply")
     @PostMapping("/ask")
     public ChatResponseDTO ask(@RequestBody ChatRequestDTO request) {
         if (request == null || request.messages() == null || request.messages().isEmpty()) {
