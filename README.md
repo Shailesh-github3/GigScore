@@ -192,65 +192,80 @@ Integrated Google Gemini assistant provides:
               | AI Recommendations   |
               +----------------------+
 
-```
+
+```text
 GigScore/
 ├── backend/
 │   └── gigscore/
-│       ├── src/main/java/com/org/gigscore/
-│       │   ├── config/          # Security, CORS, JWT, OpenAPI config
-│       │   ├── controller/      # REST controllers
-│       │   ├── dto/             # Request/response DTOs
-│       │   ├── entity/          # JPA entities
-│       │   ├── exception/       # Custom exceptions + global handler
-│       │   ├── repository/      # Spring Data JPA repositories
-│       │   ├── security/        # CurrentUserResolver
-│       │   └── service/         # Business logic
-│       ├── src/main/resources/
-│       │   └── application.properties
+│       ├── src/
+│       │   └── main/
+│       │       ├── java/
+│       │       │   └── com/
+│       │       │       └── org/
+│       │       │           └── gigscore/
+│       │       │               ├── config/         # Security, CORS, JWT, OpenAPI configuration
+│       │       │               ├── controller/     # REST API controllers
+│       │       │               ├── dto/            # Request and response DTOs
+│       │       │               ├── entity/         # JPA entities
+│       │       │               ├── exception/      # Custom exceptions and global handler
+│       │       │               ├── repository/     # Spring Data JPA repositories
+│       │       │               ├── security/       # Authentication and CurrentUserResolver
+│       │       │               └── service/        # Business logic
+│       │       └── resources/
+│       │           └── application.properties
 │       └── pom.xml
+│
 ├── frontend/
 │   ├── src/
-│   │   ├── components/          # React components
-│   │   ├── pages/               # Page-level views
-│   │   ├── context/             # Theme and auth context
-│   │   └── utils/               # API client and helpers
+│   │   ├── components/          # Reusable React components
+│   │   ├── pages/               # Application pages
+│   │   ├── context/             # Authentication and theme context
+│   │   └── utils/               # API client and helper functions
 │   └── package.json
+│
 └── README.md
 ```
 
 ---
 
-# Complete User Flow
+## Complete User Flow
 
-```
-Register
-   |
-   v
-Login
-   |
-   v
-Dashboard
-   |
-   +----------------+
-   |                |
-   v                v
-Add Gig         View Score
-   |                |
-   |                |
-   v                v
-
-Update Data     Calculate Score
-   |
-   |
-   v
-
-GigData Table
-   |
-   |
-   +----> Activity History
-   |
-   +----> GigScore Update
-
+```text
+                    +-----------+
+                    | Register  |
+                    +-----------+
+                          |
+                          v
+                    +-----------+
+                    |  Login    |
+                    +-----------+
+                          |
+                          v
+                    +-------------+
+                    | Dashboard   |
+                    +-------------+
+                     /           \
+                    /             \
+                   v               v
+          +-------------+   +--------------+
+          |  Add Gig    |   | View Score   |
+          +-------------+   +--------------+
+                 |                 |
+                 v                 v
+         +---------------+   +-----------------+
+         | Update Data   |   | Calculate Score |
+         +---------------+   +-----------------+
+                 |
+                 v
+         +----------------+
+         | GigData Table  |
+         +----------------+
+            /         \
+           /           \
+          v             v
++----------------+  +-----------------+
+| Activity History|  | GigScore Update |
++----------------+  +-----------------+
 ```
 
 ---
@@ -290,37 +305,33 @@ GigData Table
 
 # Project Structure
 
-```
+```text
 GigScore/
-
 ├── frontend/
-│
 │   ├── src/
+│   │   ├── pages/
+│   │   │   ├── Login.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── AddGig.jsx
+│   │   │   └── Score.jsx
+│   │   │
+│   │   ├── components/
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── Sidebar.jsx
+│   │   │   ├── StatCard.jsx
+│   │   │   ├── PlatformCard.jsx
+│   │   │   └── AiChatWidget.jsx
+│   │   │
+│   │   └── services/
+│   │       ├── httpClient.js
+│   │       ├── userService.js
+│   │       ├── gigService.js
+│   │       └── chatService.js
 │   │
-│   ├── pages/
-│   │   ├── Login.jsx
-│   │   ├── Dashboard.jsx
-│   │   ├── AddGig.jsx
-│   │   └── Score.jsx
-│   │
-│   ├── components/
-│   │   ├── Navbar.jsx
-│   │   ├── Sidebar.jsx
-│   │   ├── StatCard.jsx
-│   │   ├── PlatformCard.jsx
-│   │   └── AiChatWidget.jsx
-│   │
-│   ├── services/
-│   │   ├── httpClient.js
-│   │   ├── userService.js
-│   │   ├── gigService.js
-│   │   └── chatService.js
-│
+│   └── package.json
 │
 ├── backend/
-│
 │   └── gigscore/
-│       │
 │       ├── Controller/
 │       ├── Service/
 │       ├── Repository/
@@ -330,38 +341,39 @@ GigScore/
 │
 └── README.md
 ```
-
 ---
 
 # Backend Architecture
 
 GigScore follows layered architecture:
 
-```
-Controller Layer
-
-      |
-      v
-
-Service Layer
-(Business Logic)
-
-      |
-      v
-
-Repository Layer
-(Database Access)
-
-      |
-      v
-
-Entity Layer
-(Database Models)
-
-      |
-      v
-
-MySQL Database
+```text
++----------------------+
+|   Controller Layer   |
++----------------------+
+           |
+           v
++----------------------+
+|    Service Layer     |
+|   (Business Logic)   |
++----------------------+
+           |
+           v
++----------------------+
+|   Repository Layer   |
+|   (Database Access)  |
++----------------------+
+           |
+           v
++----------------------+
+|     Entity Layer     |
+|  (Database Models)   |
++----------------------+
+           |
+           v
++----------------------+
+|    MySQL Database    |
++----------------------+
 ```
 
 Responsibilities:
@@ -424,14 +436,12 @@ Stores:
 
 Stores platform-level statistics:
 
-```
+```text
 User
- |
- +-- Swiggy
- |
- +-- Uber
- |
- +-- Upwork
+│
+├── Swiggy
+├── Uber
+└── Upwork
 ```
 
 Fields:
@@ -465,7 +475,7 @@ Stores:
 
 The score is calculated using four factors:
 
-```
+```text
 Score =
 [
 (Earnings Component × 35)
@@ -481,7 +491,7 @@ Score =
 
 Formula:
 
-```
+```text
 Score =
 (
 (E/5000)^0.70 × 35
@@ -497,7 +507,7 @@ Score =
 
 Where:
 
-```
+```text
 E = Total Earnings
 J = Jobs Completed
 R = Average Rating
@@ -526,83 +536,83 @@ Exponent > 1:
 
 ## Authentication
 
-| Method | Endpoint           | Description   |
-| ------ | ------------------ | ------------- |
-| POST   | `/api/users`       | Register user |
-| POST   | `/api/users/login` | Login user    |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/users` | Register user |
+| POST | `/api/users/login` | Login user |
 
 ---
 
 ## Dashboard
 
-| Method | Endpoint              | Description        |
-| ------ | --------------------- | ------------------ |
-| GET    | `/api/users/{userId}` | Get dashboard data |
-| POST   | `/api/gigs`           | Add gig activity   |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/users/{userId}` | Get dashboard data |
+| POST | `/api/gigs` | Add gig activity |
 
 ---
 
 ## Score
 
-| Method | Endpoint          | Description  |
-| ------ | ----------------- | ------------ |
-| GET    | `/score/{userId}` | Get GigScore |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/score/{userId}` | Get GigScore |
 
 ---
 
 ## Activity
 
-| Method | Endpoint                 | Description       |
-| ------ | ------------------------ | ----------------- |
-| GET    | `/api/activity/{userId}` | Recent activities |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/activity/{userId}` | Recent activities |
 
 ---
 
 ## AI Assistant
 
-| Method | Endpoint        | Description |
-| ------ | --------------- | ----------- |
-| POST   | `/api/chat/ask` | Gemini chat |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/chat/ask` | Gemini chat |
 
 ---
 
 # Authentication Flow
 
-```
-User Login
-
-    |
-    v
-
-Backend validates credentials
-
-    |
-    v
-
-JWT Token Generated
-
-    |
-    v
-
-Frontend stores token
-
-    |
-    v
-
-Every API request:
-
-Authorization:
-Bearer <JWT>
-
-    |
-    v
-
-JwtAuthFilter validates token
-
-    |
-    v
-
-Request processed
+```text
++------------------------------+
+|          User Login          |
++------------------------------+
+               |
+               v
++------------------------------+
+| Backend validates credentials|
++------------------------------+
+               |
+               v
++------------------------------+
+|     JWT Token Generated      |
++------------------------------+
+               |
+               v
++------------------------------+
+| Frontend stores token        |
++------------------------------+
+               |
+               v
++------------------------------+
+| Every API request            |
+| Authorization: Bearer <JWT>  |
++------------------------------+
+               |
+               v
++------------------------------+
+| JwtAuthFilter validates token|
++------------------------------+
+               |
+               v
++------------------------------+
+|     Request processed        |
++------------------------------+
 ```
 
 ---
@@ -624,10 +634,10 @@ Install:
 
 Create database:
 
-- Java 21+
-- Maven 3.8+
-- MySQL 8+
-- Node.js 18+
+* Java 21+
+* Maven 3.8+
+* MySQL 8+
+* Node.js 18+
 
 ## Environment Variables
 
@@ -648,8 +658,6 @@ Copy `backend/gigscore/.env.example` and fill in your values:
 ```sql
 CREATE DATABASE gigscore;
 ```
-
----
 
 # Backend Setup
 
@@ -850,17 +858,6 @@ Tests use an H2 in-memory database with a `test` profile. The test configuration
 - AI chat has no conversation memory between requests
 - CORS is configured for localhost only; production origins need updating in `CorsConfig.java`
 
-## Git Workflow
-
-Each completed phase should be committed separately:
-
-```bash
-git add .
-git commit -m "Phase 6A: Add Swagger/OpenAPI documentation"
-git commit -m "Phase 6B: Rewrite README with architecture and setup guide"
-```
-
-Recommended commit pattern going forward: one commit per phase or logical unit of work.
 
 ## Why MySQL?
 
