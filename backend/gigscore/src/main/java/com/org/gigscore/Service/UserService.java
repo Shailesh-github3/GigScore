@@ -12,7 +12,6 @@ import com.org.gigscore.DTO.LoginResponseDTO;
 import com.org.gigscore.DTO.UserDashboardResponse;
 import com.org.gigscore.Entity.User;
 import com.org.gigscore.Repository.UserRepository;
-import com.org.gigscore.exception.BadRequestException;
 import com.org.gigscore.exception.DuplicateResourceException;
 import com.org.gigscore.exception.UnauthorizedException;
 
@@ -35,10 +34,6 @@ public class UserService {
     }
 
     public ResponseEntity<LoginResponseDTO> createUser(CreateUserRequest request) {
-        if (request == null || isBlank(request.getName()) || isBlank(request.getEmail()) || isBlank(request.getPassword())) {
-            throw new BadRequestException("Name, email and password are required.");
-        }
-
         String normalizedEmail = request.getEmail().trim().toLowerCase();
         if (userRepository.findByEmail(normalizedEmail).isPresent()) {
             throw new DuplicateResourceException("Email already exists.");
@@ -66,10 +61,6 @@ public class UserService {
     }
 
     public ResponseEntity<LoginResponseDTO> Login(LoginDTO request) {
-        if (request == null || isBlank(request.getEmail()) || isBlank(request.getPassword())) {
-            throw new BadRequestException("Email and password are required.");
-        }
-
         String normalizedEmail = request.getEmail().trim().toLowerCase();
 
         User user = userRepository.findByEmail(normalizedEmail)

@@ -43,10 +43,9 @@ public class GigDataService {
         @Transactional
         public UserDashboardResponse addGig(GigEventRequest request){
 
-                if (request == null || request.getUserId() == null || request.getPlatform() == null || request.getPlatform().isBlank()
-                                || request.getAmount() == null || request.getRating() == null) {
-                        throw new BadRequestException("userId, platform, amount and rating are required");
-                        }
+        if (request.getUserId() == null) {
+            throw new BadRequestException("userId is required");
+        }
 
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));

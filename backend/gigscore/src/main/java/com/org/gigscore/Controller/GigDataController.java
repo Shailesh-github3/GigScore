@@ -1,5 +1,6 @@
 package com.org.gigscore.Controller;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +23,7 @@ public class GigDataController {
     }
 
     @PostMapping("/gigs")
-    public UserDashboardResponse addGig(@RequestBody GigEventRequest request){
+    public UserDashboardResponse addGig(@Valid @RequestBody GigEventRequest request){
         request.setUserId(currentUserResolver.getCurrentUserId());
         return gigDataService.addGig(request);
     }

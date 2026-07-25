@@ -1,5 +1,6 @@
 package com.org.gigscore.Controller;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +29,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<LoginResponseDTO> createUser(@RequestBody CreateUserRequest request){
+    public ResponseEntity<LoginResponseDTO> createUser(@Valid @RequestBody CreateUserRequest request){
         return userService.createUser(request);
     }
 
@@ -41,7 +42,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginDTO request) {
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginDTO request) {
         return userService.Login(request);
     }
 
