@@ -3,10 +3,12 @@ package com.org.gigscore;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 
 import jakarta.annotation.PostConstruct;
 
 @SpringBootApplication
+@EnableCaching
 public class GigscoreApplication {
 
 	@Value("${jwt.secret}")

@@ -1,5 +1,6 @@
 package com.org.gigscore.service;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,6 +68,7 @@ public class GigScoreService {
         return roundToTwoDecimals(score);
     }
 
+    @Cacheable(value = "scores", key = "#user.userId")
     public ScoreResponse getScoreForUser(User user) {
         return calculateAndPersistScore(user);
 

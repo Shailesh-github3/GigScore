@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +41,7 @@ public class GigDataService {
                 this.activityService = activityService;
     }
 
+        @CacheEvict(value = "scores", key = "#request.userId")
         @Transactional
         public UserDashboardResponse addGig(GigEventRequest request){
 
