@@ -1,11 +1,9 @@
 package com.org.gigscore.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.org.gigscore.Config.JWTutill;
 import com.org.gigscore.DTO.CreateUserRequest;
@@ -14,6 +12,9 @@ import com.org.gigscore.DTO.LoginResponseDTO;
 import com.org.gigscore.DTO.UserDashboardResponse;
 import com.org.gigscore.Entity.User;
 import com.org.gigscore.Repository.UserRepository;
+import com.org.gigscore.exception.BadRequestException;
+import com.org.gigscore.exception.DuplicateResourceException;
+import com.org.gigscore.exception.UnauthorizedException;
 
 
 
@@ -35,12 +36,12 @@ public class UserService {
 
     public ResponseEntity<LoginResponseDTO> createUser(CreateUserRequest request) {
         if (request == null || isBlank(request.getName()) || isBlank(request.getEmail()) || isBlank(request.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name, email and password are required.");
+            throw new BadRequestException("Name, email and password are required.");
         }
 
         String normalizedEmail = request.getEmail().trim().toLowerCase();
         if (userRepository.findByEmail(normalizedEmail).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists.");
+            throw new DuplicateResourceException("Email already exists.");
         }
 
         User user = new User();
@@ -66,13 +67,13 @@ public class UserService {
 
     public ResponseEntity<LoginResponseDTO> Login(LoginDTO request) {
         if (request == null || isBlank(request.getEmail()) || isBlank(request.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email and password are required.");
+            throw new BadRequestException("Email and password are required.");
         }
 
         String normalizedEmail = request.getEmail().trim().toLowerCase();
 
         User user = userRepository.findByEmail(normalizedEmail)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
+                .orElseThrow(() -> new UnauthorizedException("Invalid credentials"));
 
         String rawPassword = request.getPassword();
         String storedPassword = user.getPassword();
@@ -96,7 +97,7 @@ public class UserService {
         }
 
         if (!authenticated) {
-            return ResponseEntity.status(401).build();
+            throw new UnauthorizedException("Invalid credentials");
         }
 
         String token = jwtUtil.generateToken(user.getEmail());

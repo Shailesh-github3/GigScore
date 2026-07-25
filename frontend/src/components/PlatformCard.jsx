@@ -16,15 +16,10 @@ function PlatformCard({ platform, isConnected, onConnectClick }) {
 
       <button
         type="button"
-        disabled={isConnected}
         onClick={() => onConnectClick(platform)}
-        className={`w-full rounded-none border px-4 py-3 text-sm font-bold uppercase tracking-[0.14em] transition ${
-          isConnected
-            ? "cursor-not-allowed border-[var(--color-border)] bg-[var(--color-surface-muted)] text-slate-400 dark:text-slate-500"
-            : "border-slate-900 bg-slate-900 text-white hover:bg-slate-700 dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-300"
-        }`}
+        className="w-full rounded-none border px-4 py-3 text-sm font-bold uppercase tracking-[0.14em] transition border-slate-900 bg-slate-900 text-white hover:bg-slate-700 dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-300"
       >
-        {isConnected ? "Connected" : "Connect"}
+        {isConnected ? "Add Gig" : "Connect"}
       </button>
     </article>
   );

@@ -57,7 +57,7 @@ function Login({ onUserAuthenticated }) {
                 onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
                 placeholder="name@company.com"
                 required
-                className="w-full border-0 border-b border-slate-300 bg-transparent px-0 py-2 text-sm text-slate-900 outline-none ring-0 transition placeholder:text-slate-400 focus:border-slate-900 dark:border-slate-700 dark:text-slate-100 dark:focus:border-slate-200"
+                className="w-full border-0 border-b border-slate-300 bg-transparent px-0 py-2 text-sm text-slate-900 outline-none ring-0 transition placeholder:text-slate-400 focus:border-slate-900 dark:border-slate-700 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-slate-200"
               />
             </div>
 
@@ -72,7 +72,7 @@ function Login({ onUserAuthenticated }) {
                 onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
                 placeholder="********"
                 required
-                className="w-full border-0 border-b border-slate-300 bg-transparent px-0 py-2 text-sm text-slate-900 outline-none ring-0 transition placeholder:text-slate-400 focus:border-slate-900 dark:border-slate-700 dark:text-slate-100 dark:focus:border-slate-200"
+                className="w-full border-0 border-b border-slate-300 bg-transparent px-0 py-2 text-sm text-slate-900 outline-none ring-0 transition placeholder:text-slate-400 focus:border-slate-900 dark:border-slate-700 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-slate-200"
               />
             </div>
 

@@ -16,6 +16,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.org.gigscore.DTO.ChatMessageDTO;
+import com.org.gigscore.exception.BadRequestException;
+import com.org.gigscore.exception.GeminiApiException;
 
 @Service
 public class GeminiChatService {
@@ -35,7 +37,7 @@ public class GeminiChatService {
 
     public String generateReply(List<ChatMessageDTO> messages) {
         if (apiKey == null || apiKey.isBlank()) {
-            throw new IllegalStateException("Gemini API key is not configured on the server.");
+            throw new GeminiApiException("Gemini API key is not configured on the server.");
         }
 
         List<Map<String, Object>> contents = messages.stream()
@@ -46,7 +48,7 @@ public class GeminiChatService {
                 .toList();
 
         if (contents.isEmpty()) {
-            throw new IllegalArgumentException("No chat messages provided.");
+            throw new BadRequestException("No chat messages provided.");
         }
 
         Map<String, Object> payload = Map.of(
@@ -62,7 +64,7 @@ public class GeminiChatService {
         try {
             payloadJson = objectMapper.writeValueAsString(payload);
         } catch (JsonProcessingException exception) {
-            throw new RuntimeException("Unable to serialize Gemini request.", exception);
+            throw new GeminiApiException("Unable to serialize Gemini request.", exception);
         }
 
         request = HttpRequest.newBuilder(URI.create(endpoint))
@@ -75,13 +77,13 @@ public class GeminiChatService {
             response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException("Gemini request failed.", exception);
+            throw new GeminiApiException("Gemini request failed.", exception);
         } catch (java.io.IOException exception) {
-            throw new RuntimeException("Gemini request failed.", exception);
+            throw new GeminiApiException("Gemini request failed.", exception);
         }
 
         if (response.statusCode() >= 400) {
-            throw new RuntimeException("Gemini API error: " + response.body());
+            throw new GeminiApiException("Gemini API error: " + response.body());
         }
 
         try {
@@ -95,12 +97,12 @@ public class GeminiChatService {
                     .asText("");
 
             if (text.isBlank()) {
-                throw new RuntimeException("Gemini returned an empty response.");
+                throw new GeminiApiException("Gemini returned an empty response.");
             }
 
             return text;
         } catch (JsonProcessingException exception) {
-            throw new RuntimeException("Unable to parse Gemini response.", exception);
+            throw new GeminiApiException("Unable to parse Gemini response.", exception);
         }
     }
 

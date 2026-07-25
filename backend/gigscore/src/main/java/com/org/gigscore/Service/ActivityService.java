@@ -10,6 +10,7 @@ import com.org.gigscore.Entity.Activity;
 import com.org.gigscore.Entity.User;
 import com.org.gigscore.Repository.ActivityRepository;
 import com.org.gigscore.Repository.UserRepository;
+import com.org.gigscore.exception.ResourceNotFoundException;
 
 @Service
 public class ActivityService {
@@ -35,7 +36,7 @@ public class ActivityService {
 
     public List<ActivityResponse> getLatestActivities(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         return activityRepository.findTop5ByUserOrderByTimestampDesc(user)
                 .stream()

@@ -15,6 +15,8 @@ import com.org.gigscore.Entity.User;
 import com.org.gigscore.Repository.GigDataRepository;
 import com.org.gigscore.Repository.UserRepository;
 import com.org.gigscore.Service.UserMetricsService.UserAggregateMetrics;
+import com.org.gigscore.exception.BadRequestException;
+import com.org.gigscore.exception.ResourceNotFoundException;
 
 @Service
 public class GigDataService {
@@ -43,11 +45,11 @@ public class GigDataService {
 
                 if (request == null || request.getUserId() == null || request.getPlatform() == null || request.getPlatform().isBlank()
                                 || request.getAmount() == null || request.getRating() == null) {
-                        throw new RuntimeException("userId, platform, amount and rating are required");
-                }
+                        throw new BadRequestException("userId, platform, amount and rating are required");
+                        }
 
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
                 String normalizedPlatform = request.getPlatform().trim();
 
@@ -123,7 +125,7 @@ public class GigDataService {
 
     public UserDashboardResponse getUserDashboard(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         UserAggregateMetrics metrics = userMetricsService.calculateAggregates(user);
         double score = scoreService.getScoreForUser(user).getScore();

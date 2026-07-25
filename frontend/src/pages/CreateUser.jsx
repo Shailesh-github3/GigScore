@@ -60,7 +60,7 @@ function CreateUser({ onUserAuthenticated }) {
               value={name}
               onChange={(event) => setName(event.target.value)}
               required
-              className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 outline-none ring-indigo-200 transition focus:ring dark:text-slate-100"
+              className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 text-slate-900 outline-none ring-indigo-200 transition focus:ring dark:text-slate-100"
             />
           </div>
 
@@ -74,7 +74,7 @@ function CreateUser({ onUserAuthenticated }) {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               required
-              className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 outline-none ring-indigo-200 transition focus:ring dark:text-slate-100"
+              className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 text-slate-900 outline-none ring-indigo-200 transition focus:ring dark:text-slate-100"
             />
           </div>
 
@@ -89,7 +89,7 @@ function CreateUser({ onUserAuthenticated }) {
               onChange={(event) => setPassword(event.target.value)}
               required
               minLength={6}
-              className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 outline-none ring-indigo-200 transition focus:ring dark:text-slate-100"
+              className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 text-slate-900 outline-none ring-indigo-200 transition focus:ring dark:text-slate-100"
             />
           </div>
 

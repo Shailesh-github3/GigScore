@@ -8,6 +8,7 @@ import com.org.gigscore.DTO.ScoreResponse;
 import com.org.gigscore.Entity.User;
 import com.org.gigscore.Repository.UserRepository;
 import com.org.gigscore.Service.GigScoreService;
+import com.org.gigscore.exception.ResourceNotFoundException;
 
 @RestController
 public class GigScoreController {
@@ -21,7 +22,7 @@ public class GigScoreController {
     @GetMapping("/score/{userId}")
     public ScoreResponse getScore(@PathVariable Long userId){
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         return gigScoreService.getScoreForUser(user);
     }
