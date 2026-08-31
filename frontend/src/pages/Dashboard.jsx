@@ -55,15 +55,14 @@ function Dashboard({ userId }) {
     <section className="space-y-8">
       <div className="grid gap-6 border-b border-slate-200 pb-8 dark:border-slate-800 md:grid-cols-[minmax(0,1fr)_260px]">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">System Status: Optimal</p>
-          <h1 className="mt-2 text-5xl font-black leading-[0.92] tracking-tight text-slate-900 dark:text-slate-100 md:text-6xl">
+          <h1 className="text-5xl font-black leading-[0.92] tracking-tight text-slate-900 dark:text-slate-100 md:text-6xl">
             Performance
             <br />
-            Architecture.
+            Overview.
           </h1>
         </div>
         <p className="self-start pt-1 text-right text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-          A holistic view of your operational efficiency and revenue streams.
+          A simple view of your earnings, activity, and recent gig performance.
         </p>
       </div>
 
@@ -72,7 +71,6 @@ function Dashboard({ userId }) {
           title="Total Earnings"
           value={`$${Number(dashboard.totalEarnings || 0).toFixed(2)}`}
           subtitle="Revenue"
-          icon="+12%"
           tone="accent"
           priority="primary"
         />

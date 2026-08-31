@@ -5,6 +5,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.org.gigscore.entity.User;
+import com.org.gigscore.exception.UnauthorizedException;
 import com.org.gigscore.repository.UserRepository;
 import com.org.gigscore.exception.ResourceNotFoundException;
 
@@ -20,11 +21,11 @@ public class CurrentUserResolver {
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResourceNotFoundException("User not found");
+            throw new UnauthorizedException("Authentication required.");
         }
         String email = authentication.getName();
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new UnauthorizedException("Authentication required."));
     }
 
     public Long getCurrentUserId() {

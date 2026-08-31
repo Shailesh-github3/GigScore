@@ -45,6 +45,7 @@ function MainLayout({ currentUser, onLogout, isDarkMode, onSetDarkMode, onUserAu
           </Routes>
         </main>
       </div>
+      <AiChatWidget />
     </div>
   );
 }
@@ -140,7 +141,6 @@ function App() {
           }
         />
       </Routes>
-      <AiChatWidget />
     </BrowserRouter>
   );
 }

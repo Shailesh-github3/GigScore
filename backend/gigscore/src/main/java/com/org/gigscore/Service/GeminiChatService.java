@@ -6,6 +6,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -32,12 +33,14 @@ public class GeminiChatService {
     private String model;
 
     public GeminiChatService() {
-        this.httpClient = HttpClient.newHttpClient();
+        this.httpClient = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(15))
+                .build();
     }
 
     public String generateReply(List<ChatMessageDTO> messages) {
         if (apiKey == null || apiKey.isBlank()) {
-            throw new GeminiApiException("Gemini API key is not configured on the server.");
+            throw new GeminiApiException("AI service is unavailable.");
         }
 
         List<Map<String, Object>> contents = messages.stream()
@@ -69,6 +72,7 @@ public class GeminiChatService {
 
         request = HttpRequest.newBuilder(URI.create(endpoint))
                 .header("Content-Type", "application/json")
+                .timeout(Duration.ofSeconds(15))
                 .POST(HttpRequest.BodyPublishers.ofString(payloadJson))
                 .build();
 
@@ -77,13 +81,13 @@ public class GeminiChatService {
             response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
-            throw new GeminiApiException("Gemini request failed.", exception);
+            throw new GeminiApiException("AI service is unavailable.");
         } catch (java.io.IOException exception) {
-            throw new GeminiApiException("Gemini request failed.", exception);
+            throw new GeminiApiException("AI service is unavailable.");
         }
 
         if (response.statusCode() >= 400) {
-            throw new GeminiApiException("Gemini API error: " + response.body());
+            throw new GeminiApiException("AI service is unavailable.");
         }
 
         try {
@@ -97,12 +101,12 @@ public class GeminiChatService {
                     .asText("");
 
             if (text.isBlank()) {
-                throw new GeminiApiException("Gemini returned an empty response.");
+                throw new GeminiApiException("AI service is unavailable.");
             }
 
             return text;
         } catch (JsonProcessingException exception) {
-            throw new GeminiApiException("Unable to parse Gemini response.", exception);
+            throw new GeminiApiException("AI service is unavailable.");
         }
     }
 

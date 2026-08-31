@@ -2,11 +2,12 @@ package com.org.gigscore.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
@@ -49,6 +50,34 @@ class GigDataControllerIntegrationTest {
         mockMvc.perform(get("/api/users/" + userIdB)
                         .header("Authorization", "Bearer " + tokenA))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void addGig_withInvalidAmountOrRating_returnsBadRequest() throws Exception {
+        String token = registerAndToken("Alice", "alice-invalid@example.com", "pass123");
+
+        String invalidAmountBody = "{\"platform\":\"Upwork\",\"amount\":0.0,\"rating\":4.5}";
+        mockMvc.perform(post("/api/gigs")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidAmountBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+
+        String invalidRatingBody = "{\"platform\":\"Upwork\",\"amount\":12.5,\"rating\":6.0}";
+        mockMvc.perform(post("/api/gigs")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidRatingBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+
+        String missingAmountBody = "{\"platform\":\"Upwork\",\"rating\":4.5}";
+        mockMvc.perform(post("/api/gigs")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(missingAmountBody))
+                .andExpect(status().isBadRequest());
     }
 
     private Long getUserIdFromToken(String token) throws Exception {

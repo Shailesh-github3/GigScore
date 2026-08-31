@@ -104,9 +104,8 @@ function Score({ userId }) {
 
           {!status.loading && !status.error ? (
             <>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Global Top 2%</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Current Score</p>
               <p className="mt-2 text-[140px] font-black leading-none tracking-tight text-slate-900 dark:text-slate-100 md:text-[170px]">{score}</p>
-              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">+12 pts this month</p>
             </>
           ) : null}
         </div>

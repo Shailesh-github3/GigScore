@@ -34,8 +34,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
+        if (!jwtUtil.validateJwtToken(token)) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token.");
+            return;
+        }
 
-        if (jwtUtil.validateJwtToken(token) && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
             String email = jwtUtil.extractEmail(token);
 
             if (email != null && !email.isBlank()) {

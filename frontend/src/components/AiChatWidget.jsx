@@ -3,11 +3,6 @@ import { askChatAssistant } from "../services/chatService";
 
 const STORAGE_KEY = "gigscoreAiChatMessages";
 
-const seedContext = [
-  { role: "user", content: "What is the current score?" },
-  { role: "assistant", content: "The current score is 120/3 after 15 overs." },
-];
-
 const defaultMessages = [
   {
     role: "assistant",
@@ -57,8 +52,7 @@ function AiChatWidget() {
     setIsLoading(true);
 
     try {
-      const payloadMessages = [...seedContext, ...nextMessages];
-      const response = await askChatAssistant(payloadMessages);
+      const response = await askChatAssistant(nextMessages);
       const aiReply = response.reply || "I could not generate a response right now.";
       setMessages((prev) => [...prev, { role: "assistant", content: aiReply }]);
     } catch (requestError) {

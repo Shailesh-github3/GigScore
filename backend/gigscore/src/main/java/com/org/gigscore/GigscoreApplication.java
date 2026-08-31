@@ -14,9 +14,6 @@ public class GigscoreApplication {
 	@Value("${jwt.secret}")
 	private String jwtSecret;
 
-	@Value("${gemini.api.key}")
-	private String geminiApiKey;
-
 	public static void main(String[] args) {
 		SpringApplication.run(GigscoreApplication.class, args);
 	}
@@ -25,9 +22,6 @@ public class GigscoreApplication {
 	public void validateEnvironmentVariables() {
 		if (jwtSecret == null || jwtSecret.isBlank()) {
 			throw new IllegalStateException("JWT_SECRET environment variable is not set. Please configure it before starting the application.");
-		}
-		if (geminiApiKey == null || geminiApiKey.isBlank()) {
-			throw new IllegalStateException("GEMINI_API_KEY environment variable is not set. Please configure it before starting the application.");
 		}
 	}
 

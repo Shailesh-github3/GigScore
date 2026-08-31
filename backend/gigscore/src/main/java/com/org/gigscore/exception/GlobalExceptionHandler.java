@@ -41,8 +41,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(GeminiApiException.class)
     public ResponseEntity<ErrorResponse> handleGeminiApi(GeminiApiException exception) {
-        ErrorResponse error = new ErrorResponse(HttpStatus.BAD_GATEWAY.value(), "Unable to get AI response right now.");
-        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(error);
+        ErrorResponse error = new ErrorResponse(HttpStatus.SERVICE_UNAVAILABLE.value(), "AI service is unavailable.");
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(error);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
