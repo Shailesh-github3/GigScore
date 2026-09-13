@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import PlatformCard from "../components/PlatformCard";
-import { addGig } from "../services/gigService";
+import { addGig, getPlatforms } from "../services/gigService";
 import { getUserDashboard } from "../services/userService";
-
-const PLATFORMS = ["Swiggy", "Zomato", "Uber", "Rapido", "Upwork"];
 
 function AddGig({ userId }) {
   const [dashboard, setDashboard] = useState(null);
+  const [platforms, setPlatforms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedPlatform, setSelectedPlatform] = useState("");
   const [amount, setAmount] = useState("");
@@ -17,8 +16,12 @@ function AddGig({ userId }) {
     const fetchDashboard = async () => {
       setLoading(true);
       try {
-        const response = await getUserDashboard(userId);
-        setDashboard(response);
+        const [dashboardResponse, platformsResponse] = await Promise.all([
+          getUserDashboard(userId),
+          getPlatforms(),
+        ]);
+        setDashboard(dashboardResponse);
+        setPlatforms(Array.isArray(platformsResponse) ? platformsResponse : []);
       } catch (error) {
         setStatus({
           type: "error",
@@ -86,7 +89,7 @@ function AddGig({ userId }) {
       {loading ? <p className="text-sm text-slate-500 dark:text-slate-300">Loading platform status...</p> : null}
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
-        {PLATFORMS.map((platform) => (
+        {platforms.map((platform) => (
           <PlatformCard
             key={platform}
             platform={platform}

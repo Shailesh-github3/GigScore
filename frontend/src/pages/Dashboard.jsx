@@ -30,7 +30,7 @@ function Dashboard({ userId }) {
         ]);
 
         setDashboard(dashboardResponse);
-        setActivities(activityResponse);
+        setActivities(Array.isArray(activityResponse?.content) ? activityResponse.content : []);
         setStatus({ loading: false, error: "" });
       } catch (error) {
         setStatus({

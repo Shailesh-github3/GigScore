@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 
-function Sidebar() {
+function Sidebar({ role }) {
   const linkClass = ({ isActive }) =>
     `group relative flex items-center rounded-none px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] transition-all ${
       isActive
@@ -25,6 +25,11 @@ function Sidebar() {
         <NavLink to="/score" className={linkClass}>
           Score
         </NavLink>
+        {role === "LENDER" && (
+          <NavLink to="/lenders" className={linkClass}>
+            Lenders
+          </NavLink>
+        )}
       </nav>
     </aside>
   );

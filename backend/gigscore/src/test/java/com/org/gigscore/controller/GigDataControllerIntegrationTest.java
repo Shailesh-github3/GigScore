@@ -7,8 +7,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,38 +26,40 @@ class GigDataControllerIntegrationTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private String registerAndToken(String name, String email, String password) throws Exception {
+    private record RegisteredUser(String token, long userId) {}
+
+    private RegisteredUser register(String name, String email, String password) throws Exception {
         CreateUserRequest req = new CreateUserRequest();
         req.setName(name);
         req.setEmail(email);
         req.setPassword(password);
 
-        String body = mockMvc.perform(post("/api/users")
+        String body = mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        return objectMapper.readTree(body).get("token").asText();
+        var node = objectMapper.readTree(body);
+        return new RegisteredUser(node.get("token").asText(), node.get("userId").asLong());
     }
 
     @Test
     void userA_cannotAccess_userBData() throws Exception {
-        String tokenA = registerAndToken("Alice", "alice2@example.com", "pass123");
-        String tokenB = registerAndToken("Bob", "bob2@example.com", "pass123");
+        RegisteredUser alice = register("Alice", "alice2@example.com", "pass123");
+        RegisteredUser bob = register("Bob", "bob2@example.com", "pass123");
 
-        Long userIdB = getUserIdFromToken(tokenB);
-
-        mockMvc.perform(get("/api/users/" + userIdB)
-                        .header("Authorization", "Bearer " + tokenA))
+        mockMvc.perform(get("/api/v1/users/" + bob.userId())
+                        .header("Authorization", "Bearer " + alice.token()))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     void addGig_withInvalidAmountOrRating_returnsBadRequest() throws Exception {
-        String token = registerAndToken("Alice", "alice-invalid@example.com", "pass123");
+        String token = register("Alice", "alice-invalid@example.com", "pass123").token();
 
         String invalidAmountBody = "{\"platform\":\"Upwork\",\"amount\":0.0,\"rating\":4.5}";
-        mockMvc.perform(post("/api/gigs")
+        mockMvc.perform(post("/api/v1/gigs")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidAmountBody))
@@ -65,7 +67,7 @@ class GigDataControllerIntegrationTest {
                 .andExpect(jsonPath("$.message").exists());
 
         String invalidRatingBody = "{\"platform\":\"Upwork\",\"amount\":12.5,\"rating\":6.0}";
-        mockMvc.perform(post("/api/gigs")
+        mockMvc.perform(post("/api/v1/gigs")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidRatingBody))
@@ -73,24 +75,18 @@ class GigDataControllerIntegrationTest {
                 .andExpect(jsonPath("$.message").exists());
 
         String missingAmountBody = "{\"platform\":\"Upwork\",\"rating\":4.5}";
-        mockMvc.perform(post("/api/gigs")
+        mockMvc.perform(post("/api/v1/gigs")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(missingAmountBody))
                 .andExpect(status().isBadRequest());
-    }
 
-    private Long getUserIdFromToken(String token) throws Exception {
-        CreateUserRequest dummy = new CreateUserRequest();
-        dummy.setName("tmp");
-        dummy.setEmail("tmp_" + System.nanoTime() + "@example.com");
-        dummy.setPassword("pass");
-
-        String body = mockMvc.perform(post("/api/users")
+        String unknownPlatformBody = "{\"platform\":\"MySpace\",\"amount\":12.5,\"rating\":4.5}";
+        mockMvc.perform(post("/api/v1/gigs")
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dummy)))
-                .andReturn().getResponse().getContentAsString();
-
-        return objectMapper.readTree(body).get("userId").asLong();
+                        .content(unknownPlatformBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
     }
 }

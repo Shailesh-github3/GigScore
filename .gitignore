@@ -15,6 +15,24 @@ dist-ssr
 .env.*
 !*.env.example
 
+# Secrets & credentials (never commit these)
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.truststore
+secrets.*
+*-secret.*
+*-secrets.*
+.credentials
+.secrets/
+
+# OS files
+Thumbs.db
+ehthumbs.db
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

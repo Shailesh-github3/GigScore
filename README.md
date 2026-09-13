@@ -1,48 +1,24 @@
 # GigScore
 
-
 A full-stack performance tracking platform for gig workers and freelancers. GigScore aggregates work data from multiple platforms, calculates a unified performance score, tracks growth trends, and provides AI-powered improvement suggestions.
 
 ---
 
-# Overview
-
-A full-stack application for gig workers and freelancers to track performance across platforms, monitor score trends, and get AI-assisted guidance.
-
-## Features
-
-- **JWT Authentication** -- Register and login with stateless JWT tokens
-- **Unified Dashboard** -- Earnings, jobs completed, average rating, and active days in one view
-- **Multi-Platform Tracking** -- Log gigs from any platform (Uber, DoorDash, Fiverr, etc.)
-- **Score Computation** -- Weighted exponential formula producing a 0-100 performance score
-- **Activity Feed** -- Recent gig activity with timestamped entries
-- **AI Chat Assistant** -- Gemini-powered guidance on improving your score
-- **Interactive API Docs** -- Swagger UI with in-browser JWT authorization
-- **Light/Dark Theme** -- Persistent preference on the frontend
-
-Gig workers often work across multiple platforms such as delivery apps and freelancing websites. Their earnings, ratings, and performance metrics are distributed across different platforms.
-
-GigScore solves this problem by providing:
-
-* A centralized performance dashboard
-* A unified **GigScore (0-100)** metric
-* Historical performance tracking
-* AI-powered recommendations using Google Gemini
-* Multi-platform gig activity management
+## Overview
 
 | Layer | Technology |
 |-------|-----------|
 | Frontend | React 18, Vite, Tailwind CSS, Recharts, Axios, React Router |
 | Backend | Spring Boot 4, Java 21 |
-| Security | Spring Security, JWT (jjwt 0.11.5) |
+| Security | Spring Security, JWT (jjwt 0.12.7) |
 | Database | MySQL 8, Spring Data JPA, Hibernate |
-| AI | Google Gemini API |
+| AI | Google Gemini API (optional) |
 | Docs | Springdoc OpenAPI (Swagger UI) |
 | Build | Maven, npm |
 
-## Architecture
+### Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────────┐
 │                    Frontend                          │
 │         React 18 + Vite + Tailwind CSS              │
@@ -69,756 +45,119 @@ GigScore solves this problem by providing:
 └─────────────────────────────────────────────────────┘
 ```
 
-Supported platforms:
+### Features
 
-* Swiggy
-* Zomato
-* Uber
-* Rapido
-* Upwork
+- **JWT Authentication** — Register/login with stateless tokens, BCrypt passwords, 1-hour expiry
+- **Unified Dashboard** — Earnings, jobs, average rating, and active days in one view
+- **Multi-Platform Tracking** — Log gigs from Uber, Upwork, Fiverr, Swiggy, Zomato, Rapido, DoorDash, TaskRabbit, Lyft, Freelancer
+- **Score Computation** — Weighted exponential formula producing a 0-100 score, computed server-side with a versioned config
+- **Score History** — Persisted per-user snapshot log; chart renders real trajectory
+- **Score Explanation** — Per-component point breakdown, band badge (EARLY/GROWING/STRONG), and two weakest-lever improvement suggestions
+- **Data Quality Profiling** — Confidence rating per user based on completeness, consistency, recency, and diversity
+- **Activity Feed** — Paged, newest-first activity list (max 50 per page)
+- **AI Chat Assistant** — Gemini-powered guidance on improving your score (gracefully unavailable without API key)
+- **Lender Portal** — Role-based access (LENDER) to view all workers ranked by score with full explanations
+- **Rate Limiting** — Sliding-window in-memory limiter: login 10/min, chat 20/min per IP
+- **Request Logging** — Completion-level access logs with status and duration
+- **Actuator** — `/actuator/health` endpoint, public for uptime checks
+- **Interactive API Docs** — Swagger UI with in-browser JWT authorization
+- **Light/Dark Theme** — Persistent preference on the frontend
 
----
+### Project Structure
 
-# Features
-
-## Authentication
-
-* User registration and login
-* JWT-based authentication
-* BCrypt password encryption
-* Persistent login session
-
-## Dashboard
-
-Displays:
-
-* Total earnings
-* Jobs completed
-* Average rating
-* Active days
-* Recent gig activity
-
-## Gig Management
-
-Users can:
-
-* Add gig activity from different platforms
-* Track earnings and ratings
-* Maintain platform-wise performance data
-
-## GigScore Calculation
-
-A score from **0-100** calculated using:
-
-* Earnings
-* Jobs completed
-* Average rating
-* Active consistency
-
-## Score Analytics
-
-Includes:
-
-* Current GigScore
-* Score breakdown
-* Growth trajectory chart
-* Performance suggestions
-
-## AI Assistant
-
-Integrated Google Gemini assistant provides:
-
-* Score improvement advice
-* Performance analysis
-* Personalized recommendations
-
-## Theme Support
-
-* Light mode
-* Dark mode
-* Persistent user preference
-
----
-
-# System Architecture
-
-```
-                         User
-                          |
-                          |
-                          v
-
-              +----------------------+
-              |   React Frontend     |
-              |----------------------|
-              | Pages                |
-              | Components           |
-              | Axios Services       |
-              | JWT Handling         |
-              +----------+-----------+
-                         |
-                         |
-                    REST API
-                         |
-                         v
-
-              +----------------------+
-              |  Spring Boot Backend |
-              |----------------------|
-              | Controllers          |
-              | Services             |
-              | JWT Security         |
-              | JPA Repositories     |
-              +----------+-----------+
-                         |
-                         |
-                         v
-
-              +----------------------+
-              |       MySQL          |
-              |----------------------|
-              | Users                |
-              | Gig Data             |
-              | Scores               |
-              | Activities           |
-              +----------------------+
-
-                         |
-                         |
-                         v
-
-              +----------------------+
-              | Google Gemini API    |
-              | AI Recommendations   |
-              +----------------------+
-```
-
----
-
-```
+```text
 GigScore/
 ├── backend/
 │   └── gigscore/
-│       ├── src/
-│       │   └── main/
-│       │       ├── java/
-│       │       │   └── com/
-│       │       │       └── org/
-│       │       │           └── gigscore/
-│       │       │               ├── config/         # Security, CORS, JWT, OpenAPI configuration
-│       │       │               ├── controller/     # REST API controllers
-│       │       │               ├── dto/            # Request and response DTOs
-│       │       │               ├── entity/         # JPA entities
-│       │       │               ├── exception/      # Custom exceptions and global handler
-│       │       │               ├── repository/     # Spring Data JPA repositories
-│       │       │               ├── security/       # Authentication and CurrentUserResolver
-│       │       │               └── service/        # Business logic
-│       │       └── resources/
-│       │           └── application.properties
-│       └── pom.xml
+│       ├── src/main/java/com/org/gigscore/
+│       │   ├── config/         # Security, CORS, JWT, OpenAPI, rate limiter, request logging
+│       │   ├── controller/     # REST controllers
+│       │   ├── dto/            # Request and response DTOs
+│       │   ├── entity/         # JPA entities
+│       │   ├── exception/      # Custom exceptions and global handler
+│       │   ├── repository/     # Spring Data JPA repositories
+│       │   ├── security/       # CurrentUserResolver
+│       │   ├── service/        # Business logic
+│       │   └── util/           # Money, Platform enum
+│       └── src/main/resources/
+│           └── application.properties
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── components/          # Reusable React components
-│   │   ├── pages/               # Application pages
-│   │   ├── context/             # Authentication and theme context
-│   │   └── utils/               # API client and helper functions
+│   │   ├── components/         # Reusable React components
+│   │   ├── pages/              # Application pages
+│   │   ├── services/           # Axios HTTP client, service modules
+│   │   ├── context/            # Auth and theme context
+│   │   └── utils/              # Helper functions and tests
+│   ├── nginx.conf
 │   └── package.json
 │
+├── docker-compose.yml
 └── README.md
 ```
 
 ---
 
-## Complete User Flow
+## API Reference
 
-```text
-                    +-----------+
-                    | Register  |
-                    +-----------+
-                          |
-                          v
-                    +-----------+
-                    |  Login    |
-                    +-----------+
-                          |
-                          v
-                    +-------------+
-                    | Dashboard   |
-                    +-------------+
-                     /           \
-                    /             \
-                   v               v
-          +-------------+   +--------------+
-          |  Add Gig    |   | View Score   |
-          +-------------+   +--------------+
-                 |                 |
-                 v                 v
-         +---------------+   +-----------------+
-         | Update Data   |   | Calculate Score |
-         +---------------+   +-----------------+
-                 |
-                 v
-         +----------------+
-         | GigData Table  |
-         +----------------+
-            /         \
-           /           \
-          v             v
-+----------------+  +-----------------+
-| Activity History|  | GigScore Update |
-+----------------+  +-----------------+
-```
-
----
-
-# Tech Stack
-
-## Frontend
-
-| Technology   | Purpose                  |
-| ------------ | ------------------------ |
-| React 18     | Component-based UI       |
-| Vite         | Fast frontend build tool |
-| Tailwind CSS | Styling and dark mode    |
-| React Router | Client-side routing      |
-| Axios        | API communication        |
-| Recharts     | Score visualization      |
-
-## Backend
-
-| Technology      | Purpose                     |
-| --------------- | --------------------------- |
-| Java 21         | Backend language            |
-| Spring Boot 4   | REST API framework          |
-| Spring Security | Authentication and security |
-| JWT             | Stateless authentication    |
-| Spring Data JPA | Database interaction        |
-| MySQL 8         | Relational database         |
-| Maven           | Dependency management       |
-
-## External Services
-
-| Service           | Usage                     |
-| ----------------- | ------------------------- |
-| Google Gemini API | AI-powered chat assistant |
-
----
-
-# Project Structure
-
-```text
-GigScore/
-├── frontend/
-│   ├── src/
-│   │   ├── pages/
-│   │   │   ├── Login.jsx
-│   │   │   ├── Dashboard.jsx
-│   │   │   ├── AddGig.jsx
-│   │   │   └── Score.jsx
-│   │   │
-│   │   ├── components/
-│   │   │   ├── Navbar.jsx
-│   │   │   ├── Sidebar.jsx
-│   │   │   ├── StatCard.jsx
-│   │   │   ├── PlatformCard.jsx
-│   │   │   └── AiChatWidget.jsx
-│   │   │
-│   │   └── services/
-│   │       ├── httpClient.js
-│   │       ├── userService.js
-│   │       ├── gigService.js
-│   │       └── chatService.js
-│   │
-│   └── package.json
-│
-├── backend/
-│   └── gigscore/
-│       ├── Controller/
-│       ├── Service/
-│       ├── Repository/
-│       ├── Entity/
-│       ├── DTO/
-│       └── Config/
-│
-└── README.md
-```
----
-
-# Backend Architecture
-
-GigScore follows layered architecture:
-
-```text
-+----------------------+
-|   Controller Layer   |
-+----------------------+
-           |
-           v
-+----------------------+
-|    Service Layer     |
-|   (Business Logic)   |
-+----------------------+
-           |
-           v
-+----------------------+
-|   Repository Layer   |
-|   (Database Access)  |
-+----------------------+
-           |
-           v
-+----------------------+
-|     Entity Layer     |
-|  (Database Models)   |
-+----------------------+
-           |
-           v
-+----------------------+
-|    MySQL Database    |
-+----------------------+
-```
-
-Responsibilities:
-
-## Controller
-
-* Receives HTTP requests
-* Validates input
-* Returns responses
-
-## Service
-
-Contains:
-
-* Score calculation
-* Gig updates
-* Authentication logic
-* Business rules
-
-## Repository
-
-Handles:
-
-* Database queries
-* Entity persistence
-
----
-
-# Database Design
-
-Database:
-
-```
-gigscore
-```
-
-Tables:
-
-```
-User
- |
- |
- +------ GigData
- |
- |
- +------ GigScore
- |
- |
- +------ Activity
-```
-
-## User Table
-
-Stores:
-
-* User information
-* Login credentials
-
-## GigData Table
-
-Stores platform-level statistics:
-
-```text
-User
-│
-├── Swiggy
-├── Uber
-└── Upwork
-```
-
-Fields:
-
-* Platform
-* Total earnings
-* Jobs completed
-* Average rating
-* Active days
-
-## GigScore Table
-
-Stores:
-
-* Calculated score
-* User score history
-
-## Activity Table
-
-Stores:
-
-* Gig events
-* Platform
-* Amount
-* Rating
-* Timestamp
-
----
-
-# GigScore Algorithm
-
-The score is calculated using four factors:
-
-```text
-Score =
-[
-(Earnings Component × 35)
-+
-(Jobs Component × 25)
-+
-(Rating Component × 30)
-+
-(Activity Component × 10)
-]
-× 100
-```
-
-Formula:
-
-```text
-Score =
-(
-(E/5000)^0.70 × 35
-+
-(J/100)^0.65 × 25
-+
-(R/5)^1.40 × 30
-+
-(D/30)^1.00 × 10
-)
-× 100
-```
-
-Where:
-
-```text
-E = Total Earnings
-J = Jobs Completed
-R = Average Rating
-D = Active Days
-```
-
-## Why Exponents?
-
-### Earnings and Jobs
-
-Exponent < 1:
-
-* Rewards early progress
-* Helps new workers improve score quickly
-
-### Rating
-
-Exponent > 1:
-
-* Makes quality more important
-* Penalizes poor ratings
-
----
-
-# API Endpoints
-
-## Authentication
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/users` | Register user |
-| POST | `/api/users/login` | Login user |
-
----
-
-## Dashboard
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/users/{userId}` | Get dashboard data |
-| POST | `/api/gigs` | Add gig activity |
-
----
-
-## Score
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/score/{userId}` | Get GigScore |
-
----
-
-## Activity
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/activity/{userId}` | Recent activities |
-
----
-
-## AI Assistant
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/chat/ask` | Gemini chat |
-
----
-
-# Authentication Flow
-
-```text
-+------------------------------+
-|          User Login          |
-+------------------------------+
-               |
-               v
-+------------------------------+
-| Backend validates credentials|
-+------------------------------+
-               |
-               v
-+------------------------------+
-|     JWT Token Generated      |
-+------------------------------+
-               |
-               v
-+------------------------------+
-| Frontend stores token        |
-+------------------------------+
-               |
-               v
-+------------------------------+
-| Every API request            |
-| Authorization: Bearer <JWT>  |
-+------------------------------+
-               |
-               v
-+------------------------------+
-| JwtAuthFilter validates token|
-+------------------------------+
-               |
-               v
-+------------------------------+
-|     Request processed        |
-+------------------------------+
-```
-
----
-
-# Local Setup
-
-## Requirements
-
-Install:
-
-* Java 21+
-* Maven 3.8+
-* Node.js 18+
-* MySQL 8+
-
----
-
-# Database Setup
-
-Create database:
-
-* Java 21+
-* Maven 3.8+
-* MySQL 8+
-* Node.js 18+
-
-## Environment Variables
-
-Copy `backend/gigscore/.env.example` and fill in your values:
-
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `DB_USERNAME` | MySQL username | `root` |
-| `DB_PASSWORD` | MySQL password | `your_password` |
-| `JWT_SECRET` | Secret for JWT signing (min 32 chars) | `a-very-long-random-string-here` |
-| `GEMINI_API_KEY` | Google Gemini API key | `AIza...` |
-| `GEMINI_MODEL` | Gemini model identifier | `gemini-2.5-flash` |
-
-## Setup
-
-### 1. Create the database
-
-```sql
-CREATE DATABASE gigscore;
-```
-
-# Backend Setup
-
-Navigate:
-
-```bash
-cd backend/gigscore
-```
-
-Run:
-
-```bash
-mvn spring-boot:run
-```
-
-Backend:
-
-```
-http://127.0.0.1:8080
-```
-
----
-
-# Frontend Setup
-
-Navigate:
-
-### 2. Run the backend
-
-```bash
-cd backend/gigscore
-mvn spring-boot:run
-```
-
-Backend starts at `http://localhost:8080`.
-
-### 3. Run the frontend
-
-```bash
-cd frontend
-```
-
-Install:
-
-```bash
-npm install
-```
-
-Run:
-
-```bash
-npm run dev
-```
-
-Frontend:
-
-```
-http://localhost:5173
-```
-
----
-
-# Environment Variables
-
-Backend requires:
-
-```
-DB_USERNAME=
-DB_PASSWORD=
-
-JWT_SECRET=
-
-GEMINI_API_KEY=
-GEMINI_MODEL=
-```
-
-Never commit:
-
-* API keys
-* Passwords
-* Database credentials
-* JWT secrets
-
----
-
-# Engineering Decisions
-
-## Why React?
-
-* Component reusability
-* Large ecosystem
-* Efficient UI updates
-
-## Why Spring Boot?
-
-* Production-ready framework
-* Built-in security support
-* Strong Java ecosystem
-
-Frontend starts at `http://localhost:5173`.
-
-## API Documentation
-
-Swagger UI is available at:
-
-```
-http://localhost:8080/swagger-ui.html
-```
-
-OpenAPI JSON spec:
-
-```
-http://localhost:8080/v3/api-docs
-```
-
-To test authenticated endpoints in Swagger UI, click **Authorize**, paste a JWT token (obtained from login/register), and execute requests.
-
-## API Overview
+All protected endpoints require a JWT Bearer token in the `Authorization` header. Tokens are returned by register/login endpoints and expire after 1 hour.
 
 ### Authentication
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| POST | `/api/users` | Register a new user | No |
-| POST | `/api/users/login` | Login and receive a JWT | No |
+| POST | `/api/v1/users` | Register a new user (password min 6 chars) | No |
+| POST | `/api/v1/users/login` | Login and receive a JWT | No |
 
 ### Dashboard & Data
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| GET | `/api/users/{userId}` | Get user dashboard with score and gig summaries | Yes |
-| POST | `/api/gigs` | Log a new gig event | Yes |
-| GET | `/api/activity/{userId}` | Get 5 most recent activities | Yes |
+| GET | `/api/v1/users/{userId}` | User dashboard with score and gig summaries | Yes |
+| POST | `/api/v1/gigs` | Log a new gig event (`platform` must come from `GET /api/v1/platforms`) | Yes |
+| GET | `/api/v1/activity/{userId}` | Paged activity entries, newest first (`?page=0&size=5`, max 50) | Yes |
+| GET | `/api/v1/platforms` | List of allowed platform values | Yes |
 
 ### Score
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| GET | `/score/{userId}` | Calculate and return gig score (0-100) | Yes |
+| GET | `/api/v1/score/{userId}` | Calculate and return gig score (0-100), band, explanation, and suggestions | Yes |
+| GET | `/api/v1/score/{userId}/history` | Persisted score history (snapshot recorded on each score change) | Yes |
+| GET | `/api/v1/score/config` | Score formula config (weights, exponents, targets) | Yes |
 
 ### AI Chat
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| POST | `/api/chat/ask` | Send messages, receive AI guidance | Yes |
+| POST | `/api/v1/chat/ask` | Send messages, receive AI guidance | Yes |
 
-## Authentication
+### Lender (Role-Based)
 
-All protected endpoints require a JWT Bearer token in the `Authorization` header:
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/v1/lender/workers` | All workers ranked by score with data-quality profiles | Yes (LENDER) |
+| GET | `/api/v1/lender/workers/{userId}` | Single worker's full credit view | Yes (LENDER) |
 
-```
-Authorization: Bearer <token>
-```
+Users register as `WORKER` by default. The `LENDER` role is seeded via `gigscore.seed-lender.email` / `gigscore.seed-lender.password` in `application.properties`. Lender endpoints return 403 for non-lender tokens.
 
-Tokens are returned by the register (`POST /api/users`) and login (`POST /api/users/login`) endpoints. Tokens expire after 1 hour.
+### Monitoring
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/actuator/health` | Application health check | No |
+
+### Rate Limiting
+
+- `POST /api/v1/users/login`: 10 requests/minute per IP
+- `POST /api/v1/chat/ask`: 20 requests/minute per IP
+- Exceeded → HTTP 429 with `Retry-After` header
+
+---
 
 ## Score Formula
 
-The gig score (0-100) combines four weighted components with exponential normalization:
+The score (0-100) combines four weighted components with exponential normalization:
 
 | Component | Weight | Exponent | Target |
 |-----------|--------|----------|--------|
@@ -827,122 +166,163 @@ The gig score (0-100) combines four weighted components with exponential normali
 | Average Rating | 30% | 1.40 | 5.0 |
 | Active Days | 10% | 1.00 | 30 |
 
-- Exponents < 1 reward early progress; > 1 apply stricter scaling.
-- Each component is normalized to 0-1, raised to its exponent, multiplied by its weight, then summed and scaled to 0-100.
+```text
+Score =
+  (E/5000)^0.70 × 0.35
++ (J/100)^0.65 × 0.25
++ (R/5)^1.40 × 0.30
++ (D/30)^1.00 × 0.10
+```
 
-## Build
+- Exponents < 1 (earnings, jobs) reward early progress; > 1 (rating) applies stricter scaling.
+- Each component is normalized to 0-1, raised to its exponent, multiplied by its weight, summed, and scaled to 0-100.
+- Score is capped at 100; band thresholds: EARLY (< 40), GROWING (40-69), STRONG (≥ 70).
+
+### Monetary Precision
+
+All money fields (`GigData.totalEarnings`, `Activity.amount`) are `BigDecimal` persisted as `DECIMAL(12,2)`. The canonical policy (`Money` in `com.org.gigscore.util`) is scale 2 with `HALF_UP` rounding, applied on every write and aggregation; `null` reads as zero.
+
+---
+
+## Local Setup
+
+### Requirements
+
+- Java 21+
+- Maven 3.8+
+- Node.js 18+
+- MySQL 8+ (or use H2 for local dev — see below)
+
+### 1. Create the database
+
+```sql
+CREATE DATABASE gigscore;
+```
+
+### 2. Configure environment variables
+
+Copy `backend/gigscore/.env.example` and fill in your values:
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `DB_USERNAME` | MySQL username | `root` |
+| `DB_PASSWORD` | MySQL password | `your_password` |
+| `JWT_SECRET` | Secret for JWT signing (min 32 chars, required) | `a-very-long-random-string-here` |
+| `CORS_ORIGINS` | Comma-separated frontend origins | `http://localhost:5173,http://127.0.0.1:5173` |
+| `DDL_AUTO` | Hibernate schema mode (`update` for local, `validate` for prod) | `update` |
+| `GEMINI_API_KEY` | Google Gemini API key (optional — AI chat only) | `AIza...` |
+| `GEMINI_MODEL` | Gemini model identifier | `gemini-2.5-flash` |
+
+**Running without a Gemini key:** Only `JWT_SECRET` plus MySQL credentials are required. If `GEMINI_API_KEY` is empty, everything works except the AI chat widget, which replies "AI service is unavailable."
+
+Never commit API keys, passwords, database credentials, or JWT secrets.
+
+### 3. Run the backend
 
 ```bash
-# Backend
 cd backend/gigscore
-mvn clean package
-
-# Frontend
-cd frontend
-npm run build
+mvn spring-boot:run
 ```
+
+Backend starts at `http://localhost:8080`.
+
+### 4. Run the frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend starts at `http://localhost:5173`.
+
+### API Documentation
+
+Swagger UI: `http://localhost:8080/swagger-ui.html`
+OpenAPI spec: `http://localhost:8080/v3/api-docs`
+
+To test authenticated endpoints, click **Authorize** in Swagger UI and paste a JWT token.
+
+---
 
 ## Testing
 
 ```bash
+# Backend (H2 in-memory database, test profile)
 cd backend/gigscore
 mvn test
+
+# Frontend (Vitest — score formula + API contract tests)
+cd frontend
+npm test
 ```
 
-Tests use an H2 in-memory database with a `test` profile. The test configuration is in `src/test/resources/application-test.properties`.
+Backend tests cover: score formula boundaries, rating clamps, cross-user RBAC, short-password rejection, rate limiter behavior, platform validation, paged activity shape, and health endpoint accessibility.
+
+---
+
+## Docker
+
+```bash
+docker compose up --build
+```
+
+Requires: `JWT_SECRET` (set in your shell or a `.env` file). All other variables have safe defaults.
+
+```bash
+JWT_SECRET=your_secret_here docker compose up --build
+```
+
+Services: `mysql` (port 3306), `backend` (port 8080), `frontend` (port 5173 → nginx port 80).
+
+---
 
 ## Known Limitations
 
 - No password reset or email verification flow
-- No rate limiting on API endpoints
-- No WebSocket real-time updates (dependency present but unused)
-- Score history is not persisted across recalculations (overwrites the previous score)
+- No CORS origins configured for production (update `CORS_ORIGINS` env var)
 - AI chat has no conversation memory between requests
-- CORS is configured for localhost only; production origins need updating in `CorsConfig.java`
-
-
-## Why MySQL?
-
-* Structured relational data
-* ACID transactions
-* Strong consistency for financial metrics
-
-## Why JWT?
-
-* Stateless authentication
-* Works well with React + REST APIs
 
 ---
 
-# Future Improvements
+## Future Improvements
 
-## Security
+### Security
+- Add HTTPS enforcement
+- Harden the demo lender seed for production use
 
-* Add role-based authorization
-* Validate ownership of user resources
-* Add rate limiting
-* Add HTTPS enforcement
+### Performance
+- Redis caching for scores
+- Background score calculation
+- Database connection pooling tuning
 
-## Performance
+### Frontend
+- Replace prop drilling with Context/Zustand
+- Add better error boundaries and loading states
 
-* Redis caching for scores
-* Background score calculation
-* Database optimization
-
-## Frontend
-
-* Replace prop drilling with Context/Zustand
-* Add better error boundaries
-* Improve loading states
-
-## Backend
-
-* Add automated tests
-* Add Flyway database migration
-* Add Spring Actuator monitoring
+### Backend
+- Add Flyway database migration
 
 ---
 
-# Production Scaling Approach
+## Production Scaling
 
-```
-Current:
+```text
+Current:     React → Spring Boot → MySQL
 
-React
- |
-Spring Boot
- |
-MySQL
-
-
-Future:
-
-React CDN
-
-     |
-     v
-
-Load Balancer
-
-     |
-     v
-
-Multiple Backend Instances
-
-     |
-     +---- Redis Cache
-     |
-     +---- Message Queue
-     |
-     +---- Database Replicas
+Future:      React CDN
+                 │
+           Load Balancer
+                 │
+          Multiple Backend Instances
+           │           │
+     Redis Cache    Message Queue
+           │
+     Database Replicas
 ```
 
 ---
 
-# License
+## License
 
-Currently unlicensed.
-
-Add a LICENSE file before open-source distribution.
-
-This project is unlicensed. Add a `LICENSE` file if you plan to distribute it.
+Currently unlicensed. Add a `LICENSE` file before open-source distribution.

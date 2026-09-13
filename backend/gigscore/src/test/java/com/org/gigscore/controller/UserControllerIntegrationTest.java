@@ -6,8 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -33,7 +33,7 @@ class UserControllerIntegrationTest {
         createRequest.setEmail("alice@example.com");
         createRequest.setPassword("password123");
 
-        String registerResponse = mockMvc.perform(post("/api/users")
+        String registerResponse = mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createRequest)))
                 .andExpect(status().isOk())
@@ -47,7 +47,7 @@ class UserControllerIntegrationTest {
         loginDTO.setEmail("alice@example.com");
         loginDTO.setPassword("password123");
 
-        mockMvc.perform(post("/api/users/login")
+        mockMvc.perform(post("/api/v1/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginDTO)))
                 .andExpect(status().isOk())
@@ -57,12 +57,31 @@ class UserControllerIntegrationTest {
     }
 
     @Test
-    void unauthorizedRequests_return401() throws Exception {
-        mockMvc.perform(get("/api/users/999"))
+    void register_shortPassword_returns400() throws Exception {
+        CreateUserRequest createRequest = new CreateUserRequest();
+        createRequest.setName("Short");
+        createRequest.setEmail("shortpw@example.com");
+        createRequest.setPassword("123");
+
+        mockMvc.perform(post("/api/v1/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void unauthorizedRequests_return401() throws Exception {        mockMvc.perform(get("/api/v1/users/999"))
                 .andExpect(status().isUnauthorized());
 
-        mockMvc.perform(get("/api/users/999")
+        mockMvc.perform(get("/api/v1/users/999")
                         .header("Authorization", "Bearer invalid-token"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void actuatorHealth_isPublic() throws Exception {
+        mockMvc.perform(get("/actuator/health"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"));
     }
 }

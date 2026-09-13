@@ -7,6 +7,7 @@ import CreateUser from "./pages/CreateUser";
 import Dashboard from "./pages/Dashboard";
 import AddGig from "./pages/AddGig";
 import Score from "./pages/Score";
+import Lenders from "./pages/Lenders";
 import AiChatWidget from "./components/AiChatWidget";
 
 function MainLayout({ currentUser, onLogout, isDarkMode, onSetDarkMode, onUserAuthenticated }) {
@@ -35,12 +36,15 @@ function MainLayout({ currentUser, onLogout, isDarkMode, onSetDarkMode, onUserAu
         onSetDarkMode={onSetDarkMode}
       />
       <div className="flex min-h-[calc(100vh-4rem)] items-stretch">
-        <Sidebar />
+        <Sidebar role={currentUser.role} />
         <main className="w-full p-4 md:p-6 lg:p-8">
           <Routes>
             <Route path="/dashboard" element={<Dashboard userId={currentUser.userId} />} />
             <Route path="/add-gig" element={<AddGig userId={currentUser.userId} />} />
             <Route path="/score" element={<Score userId={currentUser.userId} />} />
+            {currentUser.role === "LENDER" && (
+              <Route path="/lenders" element={<Lenders />} />
+            )}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </main>
@@ -55,12 +59,14 @@ function App() {
     const storedUserId = localStorage.getItem("gigscoreUserId");
     const storedUserName = localStorage.getItem("gigscoreUserName") || "";
     const storedUserEmail = localStorage.getItem("gigscoreUserEmail") || "";
+    const storedUserRole = localStorage.getItem("gigscoreUserRole") || "";
 
     return storedUserId
       ? {
           userId: Number(storedUserId),
           name: storedUserName,
           email: storedUserEmail,
+          role: storedUserRole,
         }
       : null;
   });
@@ -104,6 +110,7 @@ function App() {
       userId: userDashboard.userId,
       name: userDashboard.name,
       email: userDashboard.email,
+      role: userDashboard.role || "",
     };
 
     if (userDashboard.token) {
@@ -113,6 +120,7 @@ function App() {
     localStorage.setItem("gigscoreUserId", String(nextUser.userId));
     localStorage.setItem("gigscoreUserName", nextUser.name || "");
     localStorage.setItem("gigscoreUserEmail", nextUser.email || "");
+    localStorage.setItem("gigscoreUserRole", nextUser.role);
     setCurrentUser(nextUser);
   };
 
@@ -121,6 +129,7 @@ function App() {
     localStorage.removeItem("gigscoreUserId");
     localStorage.removeItem("gigscoreUserName");
     localStorage.removeItem("gigscoreUserEmail");
+    localStorage.removeItem("gigscoreUserRole");
     setCurrentUser(null);
   };
 

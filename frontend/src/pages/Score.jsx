@@ -1,31 +1,32 @@
 import { useEffect, useState } from "react";
-import { getScore } from "../services/scoreService";
+import { getScore, getScoreConfig, getScoreHistory } from "../services/scoreService";
 import { getUserDashboard } from "../services/userService";
-import { getRecentActivities } from "../services/activityService";
 import ScoreHistoryChart from "../components/ScoreHistoryChart";
-import { calculateScoreContributions, calculateTotalScore, SCORE_CONFIG } from "../utils/scoreFormula";
 
 const formatPoints = (value) => Number(value || 0).toFixed(2);
 
 function Score({ userId }) {
   const [score, setScore] = useState(null);
+  const [config, setConfig] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [explanation, setExplanation] = useState(null);
   const [metrics, setMetrics] = useState({
     totalEarnings: 0,
     jobsCompleted: 0,
     avgRating: 0,
     activeDays: 0,
   });
-  const [activities, setActivities] = useState([]);
   const [status, setStatus] = useState({ loading: true, error: "" });
 
   useEffect(() => {
     const fetchScore = async () => {
       setStatus({ loading: true, error: "" });
       try {
-        const [scoreResponse, dashboardResponse, activityResponse] = await Promise.all([
+        const [scoreResponse, scoreConfigResponse, dashboardResponse, historyResponse] = await Promise.all([
           getScore(userId),
+          getScoreConfig(),
           getUserDashboard(userId),
-          getRecentActivities(userId),
+          getScoreHistory(userId),
         ]);
 
         const nextMetrics = {
@@ -36,8 +37,14 @@ function Score({ userId }) {
         };
 
         setScore(Number(scoreResponse.score));
+        setConfig(scoreConfigResponse);
         setMetrics(nextMetrics);
-        setActivities(Array.isArray(activityResponse) ? activityResponse : []);
+        setHistory(Array.isArray(historyResponse) ? historyResponse : []);
+        setExplanation({
+          components: scoreResponse.components || null,
+          band: scoreResponse.band || null,
+          suggestions: Array.isArray(scoreResponse.suggestions) ? scoreResponse.suggestions : [],
+        });
         setStatus({ loading: false, error: "" });
       } catch (error) {
         setStatus({
@@ -50,31 +57,32 @@ function Score({ userId }) {
     fetchScore();
   }, [userId]);
 
-  const contributions = calculateScoreContributions(metrics);
-  const computedTotal = calculateTotalScore(contributions);
+  const components = explanation?.components || {};
 
-  const contributionRows = [
-    {
-      label: "Earnings",
-      formula: `min(${metrics.totalEarnings.toFixed(2)} / ${SCORE_CONFIG.earningsTarget}, 1)^${SCORE_CONFIG.exponents.earnings} x ${SCORE_CONFIG.weights.earnings * 100}`,
-      value: contributions.earnings,
-    },
-    {
-      label: "Jobs",
-      formula: `min(${metrics.jobsCompleted} / ${SCORE_CONFIG.jobsTarget}, 1)^${SCORE_CONFIG.exponents.jobs} x ${SCORE_CONFIG.weights.jobs * 100}`,
-      value: contributions.jobs,
-    },
-    {
-      label: "Rating",
-      formula: `min(${metrics.avgRating.toFixed(2)} / ${SCORE_CONFIG.ratingMax}, 1)^${SCORE_CONFIG.exponents.rating} x ${SCORE_CONFIG.weights.rating * 100}`,
-      value: contributions.rating,
-    },
-    {
-      label: "Active Days",
-      formula: `min(${metrics.activeDays} / ${SCORE_CONFIG.activeDaysTarget}, 1)^${SCORE_CONFIG.exponents.activeDays} x ${SCORE_CONFIG.weights.activeDays * 100}`,
-      value: contributions.activeDays,
-    },
-  ];
+  const contributionRows = config
+    ? [
+        {
+          label: "Earnings",
+          formula: `min(${metrics.totalEarnings.toFixed(2)} / ${config.earningsTarget}, 1)^${config.exponents.earnings} x ${config.weights.earnings * 100}`,
+          value: components.earnings,
+        },
+        {
+          label: "Jobs",
+          formula: `min(${metrics.jobsCompleted} / ${config.jobsTarget}, 1)^${config.exponents.jobs} x ${config.weights.jobs * 100}`,
+          value: components.jobs,
+        },
+        {
+          label: "Rating",
+          formula: `min(${metrics.avgRating.toFixed(2)} / ${config.ratingMax}, 1)^${config.exponents.rating} x ${config.weights.rating * 100}`,
+          value: components.rating,
+        },
+        {
+          label: "Active Days",
+          formula: `min(${metrics.activeDays} / ${config.activeDaysTarget}, 1)^${config.exponents.activeDays} x ${config.weights.activeDays * 100}`,
+          value: components.activeDays,
+        },
+      ]
+    : [];
 
   return (
     <section className="space-y-8">
@@ -114,19 +122,24 @@ function Score({ userId }) {
           <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400">
             This score reflects weighted strength across earnings, completion consistency, quality signal, and sustained activity.
           </p>
-          <p className="mt-4 text-xs uppercase tracking-[0.16em] text-slate-500">Out of {SCORE_CONFIG.maxScore}</p>
+          <p className="mt-4 text-xs uppercase tracking-[0.16em] text-slate-500">Out of {config?.maxScore}</p>
+          {explanation?.band ? (
+            <p className="mt-3 inline-block bg-[var(--color-surface-muted)] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-700 dark:text-slate-200">
+              Band: {explanation.band}
+            </p>
+          ) : null}
         </div>
       </div>
 
-      {!status.loading && !status.error ? <ScoreHistoryChart activities={activities} score={score} /> : null}
+      {!status.loading && !status.error ? <ScoreHistoryChart history={history} currentScore={score} /> : null}
 
       <div className="border border-[var(--color-border)] bg-[var(--color-surface)] p-6 transition-colors duration-200 md:p-7">
         <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Score Breakdown</h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
           Score = (Earnings / EarningsMax)^a x 35 + (Jobs / JobsMax)^b x 25 + (Rating / RatingMax)^c x 30 +
           (ActiveDays / ActiveDaysMax)^d x 10.
-          We use a={SCORE_CONFIG.exponents.earnings}, b={SCORE_CONFIG.exponents.jobs}, c={SCORE_CONFIG.exponents.rating},
-          d={SCORE_CONFIG.exponents.activeDays}. Ratios are capped at 1 before power weighting.
+          We use a={config?.exponents.earnings}, b={config?.exponents.jobs}, c={config?.exponents.rating},
+          d={config?.exponents.activeDays}. Ratios are capped at 1 before power weighting.
         </p>
 
         <div className="mt-5 border border-[var(--color-border)] bg-[var(--color-surface-muted)] p-4 transition-colors duration-200">
@@ -147,19 +160,25 @@ function Score({ userId }) {
           </div>
 
           <div className="mt-3 flex items-center justify-between border-t border-slate-300 pt-3 text-base dark:border-slate-700">
-            <p className="font-semibold text-slate-700 dark:text-slate-200">Computed Total</p>
-            <p className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100">{formatPoints(computedTotal)}</p>
+            <p className="font-semibold text-slate-700 dark:text-slate-200">Total (server)</p>
+            <p className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100">{formatPoints(score)}</p>
           </div>
         </div>
       </div>
 
       <div className="border border-[var(--color-border)] bg-[var(--color-surface)] p-6 transition-colors duration-200">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">AI Suggestions</h2>
-        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-          {metrics.jobsCompleted < 3
-            ? "Complete a few more deliveries this week to improve both jobs and consistency components."
-            : "Keep your rating above 4.8 and grow earnings steadily to push your score toward 100."}
-        </p>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">What to improve</h2>
+        {explanation?.suggestions?.length ? (
+          <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-slate-500 dark:text-slate-400">
+            {explanation.suggestions.map((suggestion) => (
+              <li key={suggestion}>{suggestion}</li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            Score details are loading — improvement factors will appear here.
+          </p>
+        )}
       </div>
     </section>
   );

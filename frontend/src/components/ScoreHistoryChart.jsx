@@ -8,17 +8,28 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { calculateScoreContributions, calculateTotalScore } from "../utils/scoreFormula";
 
-const scoreFromAggregates = (totalEarnings, jobsCompleted, avgRating, activeDays) => {
-  const contributions = calculateScoreContributions({ totalEarnings, jobsCompleted, avgRating, activeDays });
-  return calculateTotalScore(contributions);
-};
+const buildScoreHistory = (history = [], currentScore = 0) => {
+  const points = history.map((entry, index) => {
+    const date = entry.recordedAt ? new Date(entry.recordedAt) : null;
 
-const buildScoreHistory = (activities = [], currentScore = 0) => {
-  const sorted = [...activities].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    return {
+      interval: `T${index + 1}`,
+      score: Number(Number(entry.score || 0).toFixed(2)),
+      timeLabel:
+        date && !Number.isNaN(date.valueOf())
+          ? date.toLocaleString([], {
+              month: "short",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : `Point ${index + 1}`,
+      isLatest: index === history.length - 1,
+    };
+  });
 
-  if (!sorted.length) {
+  if (!points.length) {
     const safeCurrentScore = Number(currentScore || 0);
     return [
       {
@@ -36,61 +47,11 @@ const buildScoreHistory = (activities = [], currentScore = 0) => {
     ];
   }
 
-  let totalEarnings = 0;
-  let jobsCompleted = 0;
-  let ratingSum = 0;
-  const activeDays = new Set();
-
-  const points = sorted.map((activity, index) => {
-    const amount = Number(activity.amount || 0);
-    const rating = Number(activity.rating || 0);
-    const date = activity.timestamp ? new Date(activity.timestamp) : null;
-
-    totalEarnings += amount;
-    jobsCompleted += 1;
-    ratingSum += rating;
-
-    if (date && !Number.isNaN(date.valueOf())) {
-      activeDays.add(date.toISOString().slice(0, 10));
-    }
-
-    const avgRating = jobsCompleted > 0 ? ratingSum / jobsCompleted : 0;
-    const score = scoreFromAggregates(totalEarnings, jobsCompleted, avgRating, activeDays.size);
-
-    return {
-      interval: `T${index + 1}`,
-      score: Number(score.toFixed(2)),
-      timeLabel:
-        date && !Number.isNaN(date.valueOf())
-          ? date.toLocaleString([], {
-              month: "short",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-            })
-          : `Point ${index + 1}`,
-      isLatest: index === sorted.length - 1,
-    };
-  });
-
-  if (points.length === 1) {
-    const firstScore = Number(points[0].score || 0);
-    return [
-      {
-        interval: "T0",
-        score: Math.max(firstScore - 5, 0),
-        timeLabel: "Start",
-        isLatest: false,
-      },
-      points[0],
-    ];
-  }
-
   return points;
 };
 
-function ScoreHistoryChart({ activities, score }) {
-  const chartData = buildScoreHistory(activities, score);
+function ScoreHistoryChart({ history = [], currentScore = 0 }) {
+  const chartData = buildScoreHistory(history, currentScore);
   const isDarkMode =
     typeof document !== "undefined" && document.documentElement.classList.contains("dark");
 
