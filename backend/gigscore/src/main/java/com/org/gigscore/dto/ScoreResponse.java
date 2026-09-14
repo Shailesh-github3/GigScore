@@ -14,4 +14,5 @@ public class ScoreResponse {
     private Map<String, Double> components;
     private String band;
     private List<String> suggestions;
+    private DataQualityProfile dataQuality;
 }

@@ -1,6 +1,5 @@
 package com.org.gigscore.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,6 +11,7 @@ import com.org.gigscore.dto.LoginDTO;
 import com.org.gigscore.dto.LoginResponseDTO;
 import com.org.gigscore.dto.UserDashboardResponse;
 import com.org.gigscore.entity.User;
+import com.org.gigscore.entity.UserRole;
 import com.org.gigscore.repository.UserRepository;
 import com.org.gigscore.exception.DuplicateResourceException;
 import com.org.gigscore.exception.UnauthorizedException;
@@ -24,14 +24,13 @@ public class UserService {
     final UserRepository userRepository;
     final GigDataService gigDataService;
     private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
         
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    public UserService(UserRepository userRepository, GigDataService gigDataService, JwtUtil jwtUtil) {
+    public UserService(UserRepository userRepository, GigDataService gigDataService, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.gigDataService = gigDataService;
         this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -45,15 +44,17 @@ public class UserService {
         user.setName(request.getName().trim());
         user.setEmail(normalizedEmail);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(UserRole.WORKER);
 
         User savedUser = userRepository.save(user);
-        String token = jwtUtil.generateToken(savedUser.getEmail());
+        String token = jwtUtil.generateToken(savedUser.getEmail(), savedUser.getRole().name());
 
         return ResponseEntity.ok(
                 LoginResponseDTO.builder()
                         .userId(savedUser.getUserId())
                         .name(savedUser.getName())
                         .email(savedUser.getEmail())
+                        .role(savedUser.getRole().name())
                         .token(token)
                         .build());
     }
@@ -93,12 +94,13 @@ public class UserService {
             throw new UnauthorizedException("Invalid credentials");
         }
 
-        String token = jwtUtil.generateToken(user.getEmail());
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
         return ResponseEntity.ok(
                 LoginResponseDTO.builder()
                         .userId(user.getUserId())
                         .name(user.getName())
                         .email(user.getEmail())
+                        .role(user.getRole().name())
                         .token(token)
                         .build());
     }

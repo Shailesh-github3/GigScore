@@ -9,6 +9,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.org.gigscore.dto.ConfidenceLevel;
+import com.org.gigscore.dto.DataQualityProfile;
 import com.org.gigscore.dto.ScoreConfig;
 import com.org.gigscore.dto.ScoreResponse;
 import com.org.gigscore.entity.GigScore;
@@ -36,6 +38,8 @@ public class GigScoreService {
     static final double EXP_RATING = 1.40;
     static final double EXP_ACTIVE_DAYS = 1.00;
 
+    static final int SCORE_VERSION = 1;
+
     final GigScoreRepository gigScoreRepository;
     final ScoreHistoryRepository scoreHistoryRepository;
     final UserMetricsService userMetricsService;
@@ -60,7 +64,10 @@ public class GigScoreService {
         ScoreHistory history = new ScoreHistory();
         history.setUser(user);
         history.setScore(score);
+        history.setScoreVersion(SCORE_VERSION);
         scoreHistoryRepository.save(history);
+
+        DataQualityProfile dataQuality = computeDataQuality(metrics);
 
         return ScoreResponse.builder()
                 .userId(user.getUserId())
@@ -68,11 +75,12 @@ public class GigScoreService {
                 .components(components)
                 .band(bandFor(score))
                 .suggestions(suggestionsFor(components))
+                .dataQuality(dataQuality)
                 .build();
     }
 
     public Map<String, Double> computeComponents(UserAggregateMetrics metrics) {
-        double earnings = Math.pow(normalizedComponent(metrics.totalEarnings(), EARNINGS_TARGET), EXP_EARNINGS) * WEIGHT_EARNINGS * MAX_SCORE;
+        double earnings = Math.pow(normalizedComponent(metrics.totalEarnings().doubleValue(), EARNINGS_TARGET), EXP_EARNINGS) * WEIGHT_EARNINGS * MAX_SCORE;
         double jobs = Math.pow(normalizedComponent(metrics.jobsCompleted(), JOBS_TARGET), EXP_JOBS) * WEIGHT_JOBS * MAX_SCORE;
         double rating = Math.pow(normalizedComponent(clamp(metrics.avgRating(), 0.0, RATING_MAX), RATING_MAX), EXP_RATING) * WEIGHT_RATING * MAX_SCORE;
         double activeDays = Math.pow(normalizedComponent(metrics.activeDays(), ACTIVE_DAYS_TARGET), EXP_ACTIVE_DAYS) * WEIGHT_ACTIVE_DAYS * MAX_SCORE;
@@ -97,6 +105,7 @@ public class GigScoreService {
 
     public ScoreConfig getConfig() {
         return ScoreConfig.builder()
+                .version(SCORE_VERSION)
                 .maxScore(MAX_SCORE)
                 .earningsTarget(EARNINGS_TARGET)
                 .jobsTarget(JOBS_TARGET)
@@ -155,6 +164,37 @@ public class GigScoreService {
 
     private double roundToTwoDecimals(double value) {
         return Math.round(value * 100.0) / 100.0;
+    }
+
+    public DataQualityProfile computeDataQuality(UserAggregateMetrics metrics) {
+        int gigs = metrics.jobsCompleted();
+        int days = metrics.activeDays();
+        ConfidenceLevel level = ConfidenceLevel.fromVolume(gigs, days);
+        String note;
+        List<String> flags;
+
+        switch (level) {
+            case HIGH -> {
+                note = "Strong data history — score is reliable.";
+                flags = List.of();
+            }
+            case MEDIUM -> {
+                note = "Score stabilizes after 20+ completed gigs across 10+ active days.";
+                flags = List.of("Moderate gig history");
+            }
+            default -> {
+                note = "Score based on very little data — treat with caution.";
+                flags = List.of("Limited gig history");
+            }
+        }
+
+        return DataQualityProfile.builder()
+                .numberOfGigs(gigs)
+                .activeDays(days)
+                .confidence(level)
+                .flags(flags)
+                .note(note)
+                .build();
     }
 
     private GigScore resolveOrCreateUserGigScore(User user) {

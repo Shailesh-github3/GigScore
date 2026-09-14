@@ -5,11 +5,13 @@ import static org.assertj.core.api.Assertions.within;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -43,7 +45,7 @@ class GigScoreServiceTest {
     }
 
     private UserAggregateMetrics metricsFor(double earnings, int jobs, double rating, int activeDays) {
-        return new UserAggregateMetrics(earnings, jobs, rating, activeDays);
+        return new UserAggregateMetrics(new BigDecimal(String.valueOf(earnings)), jobs, rating, activeDays);
     }
 
     @Test
@@ -129,7 +131,44 @@ class GigScoreServiceTest {
         assertThat(response.getBand()).isEqualTo("Excellent");
         assertThat(response.getComponents()).isNotEmpty();
         assertThat(response.getSuggestions()).isNotEmpty();
+        assertThat(response.getDataQuality()).isNotNull();
+        assertThat(response.getDataQuality().getConfidence()).isNotNull();
         verify(gigScoreRepository).save(any(GigScore.class));
         verify(scoreHistoryRepository).save(any(ScoreHistory.class));
+    }
+
+    @Test
+    void calculateAndPersistScore_recordsScoreVersionOnHistory() {
+        User user = createUser(1L);
+        when(userMetricsService.calculateAggregates(user)).thenReturn(metricsFor(0, 0, 0, 0));
+        when(gigScoreRepository.findByUser(user)).thenReturn(Optional.empty());
+
+        gigScoreService.calculateAndPersistScore(user);
+
+        ArgumentCaptor<ScoreHistory> captor = ArgumentCaptor.forClass(ScoreHistory.class);
+        verify(scoreHistoryRepository).save(captor.capture());
+        assertThat(captor.getValue().getScoreVersion()).isEqualTo(1);
+    }
+
+    @Test
+    void getConfig_includesScoreVersion() {
+        var config = gigScoreService.getConfig();
+        assertThat(config.getVersion()).isEqualTo(1);
+    }
+
+    @Test
+    void computeDataQuality_lowVolume_returnsLowConfidence() {
+        var profile = gigScoreService.computeDataQuality(metricsFor(0, 1, 4.5, 1));
+        assertThat(profile.getConfidence()).isEqualTo(com.org.gigscore.dto.ConfidenceLevel.LOW);
+        assertThat(profile.getFlags()).isNotEmpty();
+        assertThat(profile.getNote()).isNotBlank();
+    }
+
+    @Test
+    void computeDataQuality_highVolume_returnsHighConfidence() {
+        var profile = gigScoreService.computeDataQuality(metricsFor(5000, 25, 4.8, 15));
+        assertThat(profile.getConfidence()).isEqualTo(com.org.gigscore.dto.ConfidenceLevel.HIGH);
+        assertThat(profile.getFlags()).isEmpty();
+        assertThat(profile.getNumberOfGigs()).isEqualTo(25);
     }
 }

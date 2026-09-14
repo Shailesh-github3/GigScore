@@ -1,7 +1,9 @@
 package com.org.gigscore.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,7 +26,8 @@ public class Activity {
 
     private String platform;
     private String action;
-    private Double amount;
+    @Column(precision = 12, scale = 2)
+    private BigDecimal amount;
     private Double rating;
     private LocalDateTime timestamp;
 }

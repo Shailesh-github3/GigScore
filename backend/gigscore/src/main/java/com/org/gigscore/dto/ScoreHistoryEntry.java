@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 @Builder
 public class ScoreHistoryEntry {
+    private Integer version;
     private Double score;
     private LocalDateTime recordedAt;
 }

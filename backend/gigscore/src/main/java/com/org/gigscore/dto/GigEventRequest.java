@@ -1,5 +1,7 @@
 package com.org.gigscore.dto;
 
+import java.math.BigDecimal;
+
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -15,7 +17,7 @@ public class GigEventRequest {
 
     @NotNull(message = "Amount is required")
     @DecimalMin(value = "0.01", message = "Amount must be at least 0.01")
-    private Double amount;
+    private BigDecimal amount;
 
     @NotNull(message = "Rating is required")
     @DecimalMin(value = "0.0", message = "Rating must be at least 0")

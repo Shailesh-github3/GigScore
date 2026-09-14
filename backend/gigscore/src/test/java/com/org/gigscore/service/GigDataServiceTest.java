@@ -51,7 +51,7 @@ class GigDataServiceTest {
 
     private void stubDashboard(User user, List<GigData> gigDataList, double totalEarnings, int jobs, double avgRating, int activeDays) {
         when(userMetricsService.calculateAggregates(user))
-                .thenReturn(new UserAggregateMetrics(totalEarnings, jobs, avgRating, activeDays));
+                .thenReturn(new UserAggregateMetrics(new BigDecimal(String.valueOf(totalEarnings)), jobs, avgRating, activeDays));
         when(scoreService.getScoreForUser(user))
                 .thenReturn(ScoreResponse.builder().userId(user.getUserId()).score(50.0).build());
         when(gigDataRepository.findByUser(user)).thenReturn(gigDataList);
@@ -65,14 +65,14 @@ class GigDataServiceTest {
         GigData row1 = new GigData();
         row1.setUser(user);
         row1.setPlatform("Uber");
-        row1.setTotalEarnings(1000.0);
+        row1.setTotalEarnings(new BigDecimal("1000.00"));
         row1.setJobsCompleted(10);
         row1.setAvgRating(4.0);
 
         GigData row2 = new GigData();
         row2.setUser(user);
         row2.setPlatform("Uber");
-        row2.setTotalEarnings(500.0);
+        row2.setTotalEarnings(new BigDecimal("500.00"));
         row2.setJobsCompleted(5);
         row2.setAvgRating(3.0);
 
@@ -83,7 +83,7 @@ class GigDataServiceTest {
         GigEventRequest request = new GigEventRequest();
         request.setUserId(1L);
         request.setPlatform("Uber");
-        request.setAmount(200.0);
+        request.setAmount(new BigDecimal("200.00"));
         request.setRating(4.5);
 
         gigDataService.addGig(request);
@@ -93,7 +93,7 @@ class GigDataServiceTest {
         ArgumentCaptor<GigData> captor = ArgumentCaptor.forClass(GigData.class);
         verify(gigDataRepository).save(captor.capture());
         GigData saved = captor.getValue();
-        assertThat(saved.getTotalEarnings()).isEqualTo(1700.0);
+        assertThat(saved.getTotalEarnings()).isEqualByComparingTo(new BigDecimal("1700.00"));
         assertThat(saved.getJobsCompleted()).isEqualTo(16);
     }
 
@@ -105,7 +105,7 @@ class GigDataServiceTest {
         GigData existing = new GigData();
         existing.setUser(user);
         existing.setPlatform("Lyft");
-        existing.setTotalEarnings(2000.0);
+        existing.setTotalEarnings(new BigDecimal("2000.00"));
         existing.setJobsCompleted(2);
         existing.setAvgRating(4.0);
 
@@ -116,7 +116,7 @@ class GigDataServiceTest {
         GigEventRequest request = new GigEventRequest();
         request.setUserId(1L);
         request.setPlatform("Lyft");
-        request.setAmount(100.0);
+        request.setAmount(new BigDecimal("100.00"));
         request.setRating(5.0);
 
         gigDataService.addGig(request);
@@ -126,6 +126,6 @@ class GigDataServiceTest {
         GigData saved = captor.getValue();
         assertThat(saved.getAvgRating()).isCloseTo(4.333, org.assertj.core.data.Offset.offset(0.01));
         assertThat(saved.getJobsCompleted()).isEqualTo(3);
-        assertThat(saved.getTotalEarnings()).isEqualTo(2100.0);
+        assertThat(saved.getTotalEarnings()).isEqualByComparingTo(new BigDecimal("2100.00"));
     }
 }

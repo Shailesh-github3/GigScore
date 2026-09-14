@@ -35,6 +35,7 @@ function Score({ userId }) {
         components: scoreResponse.components || null,
         band: scoreResponse.band || null,
         suggestions: Array.isArray(scoreResponse.suggestions) ? scoreResponse.suggestions : [],
+        dataQuality: scoreResponse.dataQuality || null,
       });
       setStatus({ loading: false, error: "" });
     } catch (error) {
@@ -112,6 +113,11 @@ function Score({ userId }) {
           {explanation?.band ? (
             <p className="mt-3 inline-block bg-[var(--color-surface-muted)] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-700 dark:text-slate-200">
               Band: {explanation.band}
+            </p>
+          ) : null}
+          {explanation?.dataQuality?.confidence ? (
+            <p className="mt-3 inline-block bg-[var(--color-surface-muted)] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-700 dark:text-slate-200">
+              Data confidence: {explanation.dataQuality.confidence}
             </p>
           ) : null}
         </div>

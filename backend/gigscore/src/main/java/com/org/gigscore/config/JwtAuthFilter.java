@@ -1,12 +1,17 @@
 package com.org.gigscore.config;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.org.gigscore.security.ErrorResponseWriter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -16,10 +21,14 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    private final JwtUtil jwtUtil;
+    private static final List<SimpleGrantedAuthority> EMPTY_AUTHORITIES = Collections.emptyList();
 
-    public JwtAuthFilter(JwtUtil jwtUtil) {
+    private final JwtUtil jwtUtil;
+    private final ErrorResponseWriter errorResponseWriter;
+
+    public JwtAuthFilter(JwtUtil jwtUtil, ErrorResponseWriter errorResponseWriter) {
         this.jwtUtil = jwtUtil;
+        this.errorResponseWriter = errorResponseWriter;
     }
 
     @Override
@@ -35,7 +44,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7);
         if (!jwtUtil.validateJwtToken(token)) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token.");
+            errorResponseWriter.write(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token.");
             return;
         }
 
@@ -43,10 +52,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String email = jwtUtil.extractEmail(token);
 
             if (email != null && !email.isBlank()) {
+                String role = jwtUtil.extractRole(token);
+                List<SimpleGrantedAuthority> authorities = role == null || role.isBlank()
+                        ? EMPTY_AUTHORITIES
+                        : List.of(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
+
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         email,
                         null,
-                        java.util.Collections.emptyList());
+                        authorities);
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }

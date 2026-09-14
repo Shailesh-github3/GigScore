@@ -70,12 +70,17 @@ class UserControllerIntegrationTest {
     }
 
     @Test
-    void unauthorizedRequests_return401() throws Exception {        mockMvc.perform(get("/api/v1/users/999"))
-                .andExpect(status().isUnauthorized());
+    void unauthorizedRequests_return401() throws Exception {
+        mockMvc.perform(get("/api/v1/users/999"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").exists());
 
         mockMvc.perform(get("/api/v1/users/999")
                         .header("Authorization", "Bearer invalid-token"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").exists());
     }
 
     @Test

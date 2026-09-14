@@ -64,6 +64,7 @@ public class GigScoreController {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return scoreHistoryRepository.findByUserOrderByRecordedAtAsc(user).stream()
                 .map(entry -> ScoreHistoryEntry.builder()
+                        .version(entry.getScoreVersion())
                         .score(entry.getScore())
                         .recordedAt(entry.getRecordedAt())
                         .build())

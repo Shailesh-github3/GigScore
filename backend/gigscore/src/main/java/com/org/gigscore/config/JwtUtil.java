@@ -52,6 +52,19 @@ public class JwtUtil {
         }
     }
 
+    public String extractRole(String token) {
+        try {
+            return Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .get("role", String.class);
+        } catch (Exception exception) {
+            return null;
+        }
+    }
+
     public boolean validateJwtToken(String token) {
         try {
             return extractEmail(token) != null;

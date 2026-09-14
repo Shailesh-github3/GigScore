@@ -1,5 +1,6 @@
 package com.org.gigscore.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +12,7 @@ import com.org.gigscore.entity.GigData;
 import com.org.gigscore.entity.User;
 import com.org.gigscore.repository.ActivityRepository;
 import com.org.gigscore.repository.GigDataRepository;
+import com.org.gigscore.util.Money;
 
 @Service
 public class UserMetricsService {
@@ -26,20 +28,33 @@ public class UserMetricsService {
     public UserAggregateMetrics calculateAggregates(User user) {
         List<GigData> gigDataList = gigDataRepository.findByUser(user);
 
-        double totalEarnings = 0;
+        BigDecimal totalEarnings = Money.ZERO;
         int totalJobs = 0;
         double totalRating = 0;
 
         for (GigData data : gigDataList) {
-            totalEarnings += data.getTotalEarnings();
-            totalJobs += data.getJobsCompleted();
-            totalRating += data.getAvgRating() * data.getJobsCompleted();
+            int jobs = jobsOf(data);
+            totalEarnings = Money.add(totalEarnings, earningsOf(data));
+            totalJobs += jobs;
+            totalRating += ratingOf(data) * jobs;
         }
 
         double avgRating = totalJobs > 0 ? totalRating / totalJobs : 0;
         int activeDays = countDistinctActiveDays(user);
 
         return new UserAggregateMetrics(totalEarnings, totalJobs, avgRating, activeDays);
+    }
+
+    private BigDecimal earningsOf(GigData data) {
+        return Money.of(data.getTotalEarnings());
+    }
+
+    private int jobsOf(GigData data) {
+        return data.getJobsCompleted() == null ? 0 : data.getJobsCompleted();
+    }
+
+    private double ratingOf(GigData data) {
+        return data.getAvgRating() == null ? 0.0 : data.getAvgRating();
     }
 
     private int countDistinctActiveDays(User user) {
@@ -49,6 +64,6 @@ public class UserMetricsService {
         return distinctDays.size();
     }
 
-    public record UserAggregateMetrics(double totalEarnings, int jobsCompleted, double avgRating, int activeDays) {
+    public record UserAggregateMetrics(BigDecimal totalEarnings, int jobsCompleted, double avgRating, int activeDays) {
     }
 }

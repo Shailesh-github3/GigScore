@@ -25,6 +25,8 @@ public class ScoreHistory {
 
     private Double score;
 
+    private Integer scoreVersion;
+
     @CreationTimestamp
     private LocalDateTime recordedAt;
 }

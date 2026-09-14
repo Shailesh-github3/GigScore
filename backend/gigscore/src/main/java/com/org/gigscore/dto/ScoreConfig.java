@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class ScoreConfig {
+    private Integer version;
     private Double maxScore;
     private Double earningsTarget;
     private Double jobsTarget;

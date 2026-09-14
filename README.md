@@ -212,8 +212,12 @@ Copy `backend/gigscore/.env.example` and fill in your values:
 | `DDL_AUTO` | Hibernate schema mode (`update` for local, `validate` for prod) | `update` |
 | `GEMINI_API_KEY` | Google Gemini API key (optional — AI chat only) | `AIza...` |
 | `GEMINI_MODEL` | Gemini model identifier | `gemini-2.5-flash` |
+| `DEMO_LENDER_EMAIL` | Optional: email for a seeded `LENDER` user (blank = skip) | `demo_lender@example.com` |
+| `DEMO_LENDER_PASSWORD` | Password for the seeded lender account | `change_me_please` |
 
 **Running without a Gemini key:** Only `JWT_SECRET` plus MySQL credentials are required. If `GEMINI_API_KEY` is empty, everything works except the AI chat widget, which replies "AI service is unavailable."
+
+**Seeding a lender:** If `DEMO_LENDER_EMAIL` and `DEMO_LENDER_PASSWORD` are set, a `LENDER` role account is created at startup. Call `POST /api/v1/users/login` with these credentials to get a JWT that authorizes the `/api/v1/lender/**` endpoints.
 
 Never commit API keys, passwords, database credentials, or JWT secrets.
 

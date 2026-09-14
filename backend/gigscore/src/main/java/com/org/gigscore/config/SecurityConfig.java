@@ -13,14 +13,26 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import jakarta.servlet.http.HttpServletResponse;
+import com.org.gigscore.security.ErrorResponseWriter;
+import com.org.gigscore.security.RateLimitFilter;
+import com.org.gigscore.security.RequestLoggingFilter;
 
 @Configuration
 public class SecurityConfig {
-    private final JwtAuthFilter jwtAuthFilter;
+    private static final String AUTHENTICATION_REQUIRED_MESSAGE = "Authentication required.";
+    private static final String ACCESS_DENIED_MESSAGE = "Access denied.";
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
+    private final JwtAuthFilter jwtAuthFilter;
+    private final RateLimitFilter rateLimitFilter;
+    private final RequestLoggingFilter requestLoggingFilter;
+    private final ErrorResponseWriter errorResponseWriter;
+
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter, RateLimitFilter rateLimitFilter,
+                          RequestLoggingFilter requestLoggingFilter, ErrorResponseWriter errorResponseWriter) {
         this.jwtAuthFilter = jwtAuthFilter;
+        this.rateLimitFilter = rateLimitFilter;
+        this.requestLoggingFilter = requestLoggingFilter;
+        this.errorResponseWriter = errorResponseWriter;
     }
 
     @Bean
@@ -30,12 +42,14 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationEntryPoint authenticationEntryPoint() {
-        return (request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication required.");
+        return (request, response, authException) ->
+                errorResponseWriter.write(response, 401, AUTHENTICATION_REQUIRED_MESSAGE);
     }
 
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
-        return (request, response, accessDeniedException) -> response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied.");
+        return (request, response, accessDeniedException) ->
+                errorResponseWriter.write(response, 403, ACCESS_DENIED_MESSAGE);
     }
 
     @Bean
@@ -52,10 +66,13 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/users").permitAll()
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers("/api/v1/lender/**").hasRole("LENDER")
                 .anyRequest().authenticated())
             .httpBasic(httpBasic -> httpBasic.disable())
             .formLogin(formLogin -> formLogin.disable())
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(rateLimitFilter, JwtAuthFilter.class)
+            .addFilterBefore(requestLoggingFilter, RateLimitFilter.class);
 
         return http.build();
     }

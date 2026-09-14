@@ -1,5 +1,6 @@
 package com.org.gigscore.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,6 +19,7 @@ import com.org.gigscore.repository.UserRepository;
 import com.org.gigscore.service.UserMetricsService.UserAggregateMetrics;
 import com.org.gigscore.exception.BadRequestException;
 import com.org.gigscore.exception.ResourceNotFoundException;
+import com.org.gigscore.util.Money;
 import com.org.gigscore.util.Platform;
 
 @Service
@@ -57,7 +59,7 @@ public class GigDataService {
 
                 GigData data = resolveOrCreatePlatformAggregate(user, normalizedPlatform);
 
-        data.setTotalEarnings(data.getTotalEarnings() + request.getAmount());
+        data.setTotalEarnings(Money.add(earningsOf(data), request.getAmount()));
         data.setJobsCompleted(data.getJobsCompleted() + 1);
 
         int oldCount = data.getJobsCompleted() - 1;
@@ -83,7 +85,7 @@ public class GigDataService {
                         GigData g = new GigData();
                         g.setUser(user);
                         g.setPlatform(platform);
-                        g.setTotalEarnings(0.0);
+                        g.setTotalEarnings(Money.ZERO);
                         g.setJobsCompleted(0);
                         g.setAvgRating(0.0);
                         return g;
@@ -94,16 +96,16 @@ public class GigDataService {
                         return primary;
                 }
 
-                double mergedEarnings = 0.0;
+                BigDecimal mergedEarnings = Money.ZERO;
                 int mergedJobs = 0;
                 double weightedRatingTotal = 0.0;
 
                 for (GigData row : rows) {
-                        double earnings = row.getTotalEarnings() == null ? 0.0 : row.getTotalEarnings();
-                        int jobs = row.getJobsCompleted() == null ? 0 : row.getJobsCompleted();
-                        double avgRating = row.getAvgRating() == null ? 0.0 : row.getAvgRating();
+                        BigDecimal earnings = earningsOf(row);
+                        int jobs = jobsOf(row);
+                        double avgRating = ratingOf(row);
 
-                        mergedEarnings += earnings;
+                        mergedEarnings = Money.add(mergedEarnings, earnings);
                         mergedJobs += jobs;
                         weightedRatingTotal += avgRating * jobs;
                 }
@@ -147,10 +149,22 @@ public class GigDataService {
     private GigSummaryResponse toGigSummaryResponse(GigData gigData) {
         return GigSummaryResponse.builder()
                 .platform(gigData.getPlatform())
-                .totalEarnings(gigData.getTotalEarnings())
-                .jobsCompleted(gigData.getJobsCompleted())
-                .avgRating(gigData.getAvgRating())
+                .totalEarnings(earningsOf(gigData))
+                .jobsCompleted(jobsOf(gigData))
+                .avgRating(ratingOf(gigData))
                 .build();
+    }
+
+    private BigDecimal earningsOf(GigData data) {
+        return Money.of(data.getTotalEarnings());
+    }
+
+    private int jobsOf(GigData data) {
+        return data.getJobsCompleted() == null ? 0 : data.getJobsCompleted();
+    }
+
+    private double ratingOf(GigData data) {
+        return data.getAvgRating() == null ? 0.0 : data.getAvgRating();
     }
     
 
