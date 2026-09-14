@@ -14,7 +14,7 @@ import com.org.gigscore.exception.BadRequestException;
 import com.org.gigscore.exception.GeminiApiException;
 
 @RestController
-@RequestMapping("/api/chat")
+@RequestMapping("/api/v1/chat")
 @Tag(name = "AI Chat", description = "AI-powered score guidance via Gemini")
 public class ChatController {
 

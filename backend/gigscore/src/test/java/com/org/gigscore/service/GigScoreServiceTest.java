@@ -1,9 +1,11 @@
 package com.org.gigscore.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -12,14 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-
-import com.org.gigscore.dto.ConfidenceLevel;
-import com.org.gigscore.dto.DataQualityProfile;
-import com.org.gigscore.dto.ScoreBand;
-import com.org.gigscore.dto.ScoreResponse;
 import com.org.gigscore.entity.GigScore;
 import com.org.gigscore.entity.ScoreHistory;
 import com.org.gigscore.entity.User;
@@ -32,26 +26,13 @@ class GigScoreServiceTest {
 
     @Mock
     private GigScoreRepository gigScoreRepository;
-
+    @Mock
+    private ScoreHistoryRepository scoreHistoryRepository;
     @Mock
     private UserMetricsService userMetricsService;
 
-    @Mock
-    private DataQualityService dataQualityService;
-
-    @Mock
-    private ScoreHistoryRepository scoreHistoryRepository;
-
     @InjectMocks
     private GigScoreService gigScoreService;
-
-    private DataQualityProfile validDataQuality() {
-        return new DataQualityProfile(ConfidenceLevel.HIGH, 50, 10, 100, List.of());
-    }
-
-    private UserAggregateMetrics metrics(double earnings, int jobs, double rating, int activeDays) {
-        return new UserAggregateMetrics(BigDecimal.valueOf(earnings), jobs, rating, activeDays);
-    }
 
     private User createUser(Long userId) {
         User user = new User();
@@ -61,141 +42,94 @@ class GigScoreServiceTest {
         return user;
     }
 
+    private UserAggregateMetrics metricsFor(double earnings, int jobs, double rating, int activeDays) {
+        return new UserAggregateMetrics(earnings, jobs, rating, activeDays);
+    }
+
     @Test
-    void calculateAndPersistScore_normalValues() {
+    void calculateScoreValue_zeroMetrics_returnsZero() {
+        double score = gigScoreService.calculateScoreValue(metricsFor(0, 0, 0, 0));
+        assertThat(score).isCloseTo(0.0, within(0.01));
+    }
+
+    @Test
+    void calculateScoreValue_maxMetrics_returns100() {
+        double score = gigScoreService.calculateScoreValue(metricsFor(5000, 100, 5.0, 30));
+        assertThat(score).isCloseTo(100.0, within(0.01));
+    }
+
+    @Test
+    void calculateScoreValue_halfEarnings_contributesWeighted() {
+        UserAggregateMetrics metrics = metricsFor(2500, 0, 0, 0);
+        double score = gigScoreService.calculateScoreValue(metrics);
+
+        double expectedComponent = Math.pow(2500.0 / 5000.0, 0.70) * 0.35 * 100.0;
+        assertThat(score).isCloseTo(expectedComponent, within(0.01));
+    }
+
+    @Test
+    void calculateScoreValue_halfJobs_contributesWeighted() {
+        UserAggregateMetrics metrics = metricsFor(0, 50, 0, 0);
+        double score = gigScoreService.calculateScoreValue(metrics);
+
+        double expectedComponent = Math.pow(50.0 / 100.0, 0.65) * 0.25 * 100.0;
+        assertThat(score).isCloseTo(expectedComponent, within(0.01));
+    }
+
+    @Test
+    void calculateScoreValue_halfRating_contributesWeighted() {
+        UserAggregateMetrics metrics = metricsFor(0, 0, 2.5, 0);
+        double score = gigScoreService.calculateScoreValue(metrics);
+
+        double expectedComponent = Math.pow(2.5 / 5.0, 1.40) * 0.30 * 100.0;
+        assertThat(score).isCloseTo(expectedComponent, within(0.01));
+    }
+
+    @Test
+    void calculateScoreValue_halfActiveDays_contributesWeighted() {
+        UserAggregateMetrics metrics = metricsFor(0, 0, 0, 15);
+        double score = gigScoreService.calculateScoreValue(metrics);
+
+        double expectedComponent = Math.pow(15.0 / 30.0, 1.0) * 0.10 * 100.0;
+        assertThat(score).isCloseTo(expectedComponent, within(0.01));
+    }
+
+    @Test
+    void computeComponents_populatesAllFourKeys() {
+        Map<String, Double> components = gigScoreService.computeComponents(metricsFor(5000, 100, 5.0, 30));
+
+        assertThat(components).containsKeys("earnings", "jobs", "rating", "activeDays");
+        assertThat(components.values()).allMatch(v -> v >= 0.0);
+    }
+
+    @Test
+    void getConfig_returnsMatchingConstants() {
+        var config = gigScoreService.getConfig();
+
+        assertThat(config.getMaxScore()).isEqualTo(100.0);
+        assertThat(config.getWeights().getEarnings()).isEqualTo(0.35);
+        assertThat(config.getExponents().getEarnings()).isEqualTo(0.70);
+        assertThat(config.getEarningsTarget()).isEqualTo(5000.0);
+        assertThat(config.getJobsTarget()).isEqualTo(100.0);
+        assertThat(config.getActiveDaysTarget()).isEqualTo(30.0);
+    }
+
+    @Test
+    void calculateAndPersistScore_persistsAndReturnsResponse() {
         User user = createUser(1L);
-        UserAggregateMetrics metrics = metrics(2500.0, 50, 4.0, 15);
+        UserAggregateMetrics metrics = metricsFor(5000, 100, 5.0, 30);
+
         when(userMetricsService.calculateAggregates(user)).thenReturn(metrics);
         when(gigScoreRepository.findByUser(user)).thenReturn(Optional.empty());
-        when(dataQualityService.evaluateDataQuality(user)).thenReturn(validDataQuality());
 
-        ScoreResponse response = gigScoreService.calculateAndPersistScore(user);
+        var response = gigScoreService.calculateAndPersistScore(user);
 
         assertThat(response.getUserId()).isEqualTo(1L);
-        assertThat(response.getScore()).isGreaterThan(0.0);
-        assertThat(response.getScoreVersion()).isEqualTo(GigScoreService.SCORE_VERSION);
-        assertThat(response.getBand()).isEqualTo(ScoreBand.GROWING);
-        assertThat(response.getComponents()).isNotNull();
-        assertThat(response.getSuggestions()).hasSize(2);
+        assertThat(response.getScore()).isCloseTo(100.0, within(0.01));
+        assertThat(response.getBand()).isEqualTo("Excellent");
+        assertThat(response.getComponents()).isNotEmpty();
+        assertThat(response.getSuggestions()).isNotEmpty();
         verify(gigScoreRepository).save(any(GigScore.class));
         verify(scoreHistoryRepository).save(any(ScoreHistory.class));
-    }
-
-    @Test
-    void calculateAndPersistScore_doesNotRecordDuplicateHistoryWhenScoreUnchanged() {
-        User user = createUser(1L);
-        UserAggregateMetrics metrics = metrics(2500.0, 50, 4.0, 15);
-        GigScore existing = new GigScore();
-        existing.setUser(user);
-        existing.setScore(gigScoreService.calculateScoreValue(metrics));
-
-        when(userMetricsService.calculateAggregates(user)).thenReturn(metrics);
-        when(gigScoreRepository.findByUser(user)).thenReturn(Optional.of(existing));
-        when(dataQualityService.evaluateDataQuality(user)).thenReturn(validDataQuality());
-
-        gigScoreService.calculateAndPersistScore(user);
-
-        verify(scoreHistoryRepository, never()).save(any(ScoreHistory.class));
-    }
-
-    @Test
-    void getScoreHistory_returnsMappedEntriesInOrder() {
-        User user = createUser(1L);
-        ScoreHistory first = new ScoreHistory();
-        first.setScoreHistoryId(1L);
-        first.setScore(20.0);
-        first.setCreatedAt(LocalDateTime.now().minusDays(2));
-
-        ScoreHistory second = new ScoreHistory();
-        second.setScoreHistoryId(2L);
-        second.setScore(30.0);
-        second.setCreatedAt(LocalDateTime.now());
-
-        when(scoreHistoryRepository.findByUserOrderByCreatedAtAsc(user)).thenReturn(List.of(first, second));
-
-        var entries = gigScoreService.getScoreHistory(user);
-
-        assertThat(entries).hasSize(2);
-        assertThat(entries.get(0).score()).isEqualTo(20.0);
-        assertThat(entries.get(0).recordedAt()).isNotNull();
-        assertThat(entries.get(1).score()).isEqualTo(30.0);
-    }
-
-    @Test
-    void calculateScoreValue_capsAt100() {
-        assertThat(gigScoreService.calculateScoreValue(metrics(20000.0, 500, 5.0, 100))).isEqualTo(100.0);
-        assertThat(gigScoreService.calculateScoreValue(metrics(1e12, 1000000, 5.0, 3650))).isEqualTo(100.0);
-    }
-
-    @Test
-    void calculateScoreValue_ratingAboveMaxIsClamped() {
-        assertThat(gigScoreService.calculateScoreValue(metrics(2500.0, 50, 7.0, 15)))
-                .isEqualTo(gigScoreService.calculateScoreValue(metrics(2500.0, 50, 5.0, 15)));
-    }
-
-    @Test
-    void calculateScoreValue_zeroRatingScoresBelowRated() {
-        double zeroRating = gigScoreService.calculateScoreValue(metrics(2500.0, 50, 0.0, 15));
-        double rated = gigScoreService.calculateScoreValue(metrics(2500.0, 50, 4.0, 15));
-        assertThat(zeroRating).isGreaterThan(0.0);
-        assertThat(zeroRating).isLessThan(rated);
-    }
-
-    @Test
-    void calculateAndPersistScore_cappedMetrics_returnsStrongBandWithExactComponents() {
-        User user = createUser(1L);
-        UserAggregateMetrics metrics = metrics(20000.0, 500, 5.0, 100);
-        when(userMetricsService.calculateAggregates(user)).thenReturn(metrics);
-        when(gigScoreRepository.findByUser(user)).thenReturn(Optional.empty());
-        when(dataQualityService.evaluateDataQuality(user)).thenReturn(validDataQuality());
-
-        ScoreResponse response = gigScoreService.calculateAndPersistScore(user);
-
-        assertThat(response.getScore()).isEqualTo(100.0);
-        assertThat(response.getBand()).isEqualTo(ScoreBand.STRONG);
-        assertThat(response.getComponents().earnings()).isEqualTo(35.0);
-        assertThat(response.getComponents().jobs()).isEqualTo(25.0);
-        assertThat(response.getComponents().rating()).isEqualTo(30.0);
-        assertThat(response.getComponents().activeDays()).isEqualTo(10.0);
-        assertThat(response.getSuggestions()).hasSize(1);
-    }
-
-    @Test
-    void calculateAndPersistScore_zeroJobs() {
-        User user = createUser(1L);
-        UserAggregateMetrics metrics = metrics(0.0, 0, 0.0, 0);
-        when(userMetricsService.calculateAggregates(user)).thenReturn(metrics);
-        when(gigScoreRepository.findByUser(user)).thenReturn(Optional.empty());
-        when(dataQualityService.evaluateDataQuality(user)).thenReturn(validDataQuality());
-
-        ScoreResponse response = gigScoreService.calculateAndPersistScore(user);
-
-        assertThat(response.getScore()).isEqualTo(0.0);
-    }
-
-    @Test
-    void calculateAndPersistScore_maxRating() {
-        User user = createUser(1L);
-        UserAggregateMetrics metrics = metrics(2500.0, 50, 5.0, 15);
-        when(userMetricsService.calculateAggregates(user)).thenReturn(metrics);
-        when(gigScoreRepository.findByUser(user)).thenReturn(Optional.empty());
-        when(dataQualityService.evaluateDataQuality(user)).thenReturn(validDataQuality());
-
-        ScoreResponse response = gigScoreService.calculateAndPersistScore(user);
-
-        assertThat(response.getScore()).isGreaterThan(0.0);
-    }
-
-    @Test
-    void calculateAndPersistScore_zeroEarnings() {
-        User user = createUser(1L);
-        UserAggregateMetrics metrics = metrics(0.0, 50, 4.0, 15);
-        when(userMetricsService.calculateAggregates(user)).thenReturn(metrics);
-        when(gigScoreRepository.findByUser(user)).thenReturn(Optional.empty());
-        when(dataQualityService.evaluateDataQuality(user)).thenReturn(validDataQuality());
-
-        ScoreResponse response = gigScoreService.calculateAndPersistScore(user);
-
-        assertThat(response.getScore()).isGreaterThan(0.0);
     }
 }

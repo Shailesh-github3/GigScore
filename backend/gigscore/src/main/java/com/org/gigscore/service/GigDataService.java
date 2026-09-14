@@ -18,6 +18,7 @@ import com.org.gigscore.repository.UserRepository;
 import com.org.gigscore.service.UserMetricsService.UserAggregateMetrics;
 import com.org.gigscore.exception.BadRequestException;
 import com.org.gigscore.exception.ResourceNotFoundException;
+import com.org.gigscore.util.Platform;
 
 @Service
 public class GigDataService {
@@ -52,13 +53,12 @@ public class GigDataService {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-                String normalizedPlatform = request.getPlatform().trim();
+                String normalizedPlatform = Platform.normalize(request.getPlatform());
 
                 GigData data = resolveOrCreatePlatformAggregate(user, normalizedPlatform);
 
         data.setTotalEarnings(data.getTotalEarnings() + request.getAmount());
         data.setJobsCompleted(data.getJobsCompleted() + 1);
-        data.setActiveDays(data.getActiveDays() + 1);
 
         int oldCount = data.getJobsCompleted() - 1;
 
@@ -86,7 +86,6 @@ public class GigDataService {
                         g.setTotalEarnings(0.0);
                         g.setJobsCompleted(0);
                         g.setAvgRating(0.0);
-                        g.setActiveDays(0);
                         return g;
                 }
 
@@ -97,24 +96,20 @@ public class GigDataService {
 
                 double mergedEarnings = 0.0;
                 int mergedJobs = 0;
-                int mergedActiveDays = 0;
                 double weightedRatingTotal = 0.0;
 
                 for (GigData row : rows) {
                         double earnings = row.getTotalEarnings() == null ? 0.0 : row.getTotalEarnings();
                         int jobs = row.getJobsCompleted() == null ? 0 : row.getJobsCompleted();
-                        int activeDays = row.getActiveDays() == null ? 0 : row.getActiveDays();
                         double avgRating = row.getAvgRating() == null ? 0.0 : row.getAvgRating();
 
                         mergedEarnings += earnings;
                         mergedJobs += jobs;
-                        mergedActiveDays += activeDays;
                         weightedRatingTotal += avgRating * jobs;
                 }
 
                 primary.setTotalEarnings(mergedEarnings);
                 primary.setJobsCompleted(mergedJobs);
-                primary.setActiveDays(mergedActiveDays);
                 primary.setAvgRating(mergedJobs > 0 ? weightedRatingTotal / mergedJobs : 0.0);
 
                 for (int i = 1; i < rows.size(); i++) {
@@ -155,7 +150,6 @@ public class GigDataService {
                 .totalEarnings(gigData.getTotalEarnings())
                 .jobsCompleted(gigData.getJobsCompleted())
                 .avgRating(gigData.getAvgRating())
-                .activeDays(gigData.getActiveDays())
                 .build();
     }
     

@@ -15,7 +15,7 @@ import com.org.gigscore.exception.UnauthorizedAccessException;
 import com.org.gigscore.security.CurrentUserResolver;
 
 @RestController
-@RequestMapping("/api/activity")
+@RequestMapping("/api/v1/activity")
 @Tag(name = "Activity", description = "Recent gig activity feed")
 public class ActivityController {
 

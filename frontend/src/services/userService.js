@@ -5,8 +5,8 @@ export async function createUser(payload) {
   return response.data;
 }
 
-export async function getUserDashboard(userId) {
-  const response = await httpClient.get(`/api/v1/users/${userId}`);
+export async function getUserDashboard(userId, config) {
+  const response = await httpClient.get(`/api/v1/users/${userId}`, config);
   return response.data;
 }
 

@@ -10,5 +10,4 @@ public class GigSummaryResponse {
     private Double totalEarnings;
     private Integer jobsCompleted;
     private Double avgRating;
-    private Integer activeDays;
 }

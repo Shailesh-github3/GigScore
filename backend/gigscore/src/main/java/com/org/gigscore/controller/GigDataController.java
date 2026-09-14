@@ -14,7 +14,7 @@ import com.org.gigscore.service.GigDataService;
 import com.org.gigscore.security.CurrentUserResolver;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 @Tag(name = "Gigs", description = "Log gig events and update platform aggregates")
 public class GigDataController {
 

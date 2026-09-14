@@ -36,7 +36,7 @@ describe("api contract", () => {
     httpClient.post.mockResolvedValue({ data: {} });
 
     await getUserDashboard(5);
-    expect(httpClient.get).toHaveBeenCalledWith("/api/v1/users/5");
+    expect(httpClient.get).toHaveBeenCalledWith("/api/v1/users/5", undefined);
 
     await addGig({ userId: 5, platform: "Uber", amount: 10, rating: 5 });
     expect(httpClient.post).toHaveBeenCalledWith("/api/v1/gigs", {
@@ -47,10 +47,10 @@ describe("api contract", () => {
     });
 
     await getPlatforms();
-    expect(httpClient.get).toHaveBeenCalledWith("/api/v1/platforms");
+    expect(httpClient.get).toHaveBeenCalledWith("/api/v1/platforms", undefined);
 
     await getRecentActivities(5, 1, 10);
-    expect(httpClient.get).toHaveBeenCalledWith("/api/v1/activity/5?page=1&size=10");
+    expect(httpClient.get).toHaveBeenCalledWith("/api/v1/activity/5?page=1&size=10", undefined);
 
     await askChatAssistant([{ role: "user", text: "hi" }]);
     expect(httpClient.post).toHaveBeenCalledWith("/api/v1/chat/ask", {
@@ -62,13 +62,13 @@ describe("api contract", () => {
     httpClient.get.mockResolvedValue({ data: {} });
 
     await getScore(7);
-    expect(httpClient.get).toHaveBeenCalledWith("/api/v1/score/7");
+    expect(httpClient.get).toHaveBeenCalledWith("/api/v1/score/7", undefined);
 
     await getScoreConfig();
-    expect(httpClient.get).toHaveBeenCalledWith("/api/v1/score/config");
+    expect(httpClient.get).toHaveBeenCalledWith("/api/v1/score/config", undefined);
 
     await getScoreHistory(7);
-    expect(httpClient.get).toHaveBeenCalledWith("/api/v1/score/7/history");
+    expect(httpClient.get).toHaveBeenCalledWith("/api/v1/score/7/history", undefined);
 
     await getWorkers();
     expect(httpClient.get).toHaveBeenCalledWith("/api/v1/lender/workers");

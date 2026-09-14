@@ -1,16 +1,16 @@
 import httpClient from "./httpClient";
 
-export async function getScore(userId) {
-  const response = await httpClient.get(`/api/v1/score/${userId}`);
+export async function getScore(userId, config) {
+  const response = await httpClient.get(`/api/v1/score/${userId}`, config);
   return response.data;
 }
 
-export async function getScoreConfig() {
-  const response = await httpClient.get("/api/v1/score/config");
+export async function getScoreConfig(config) {
+  const response = await httpClient.get("/api/v1/score/config", config);
   return response.data;
 }
 
-export async function getScoreHistory(userId) {
-  const response = await httpClient.get(`/api/v1/score/${userId}/history`);
+export async function getScoreHistory(userId, config) {
+  const response = await httpClient.get(`/api/v1/score/${userId}/history`, config);
   return response.data;
 }

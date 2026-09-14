@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getScore, getScoreConfig, getScoreHistory } from "../services/scoreService";
 import { getUserDashboard } from "../services/userService";
 import ScoreHistoryChart from "../components/ScoreHistoryChart";
@@ -10,77 +10,62 @@ function Score({ userId }) {
   const [config, setConfig] = useState(null);
   const [history, setHistory] = useState([]);
   const [explanation, setExplanation] = useState(null);
-  const [metrics, setMetrics] = useState({
-    totalEarnings: 0,
-    jobsCompleted: 0,
-    avgRating: 0,
-    activeDays: 0,
-  });
+  const [metrics, setMetrics] = useState({ totalEarnings: 0, jobsCompleted: 0, avgRating: 0, activeDays: 0 });
   const [status, setStatus] = useState({ loading: true, error: "" });
 
-  useEffect(() => {
-    const fetchScore = async () => {
-      setStatus({ loading: true, error: "" });
-      try {
-        const [scoreResponse, scoreConfigResponse, dashboardResponse, historyResponse] = await Promise.all([
-          getScore(userId),
-          getScoreConfig(),
-          getUserDashboard(userId),
-          getScoreHistory(userId),
-        ]);
+  const fetchScore = useCallback(async (signal) => {
+    try {
+      const [scoreResponse, scoreConfigResponse, dashboardResponse, historyResponse] = await Promise.all([
+        getScore(userId, { signal }),
+        getScoreConfig({ signal }),
+        getUserDashboard(userId, { signal }),
+        getScoreHistory(userId, { signal }),
+      ]);
 
-        const nextMetrics = {
-          totalEarnings: Number(dashboardResponse.totalEarnings || 0),
-          jobsCompleted: Number(dashboardResponse.jobsCompleted || 0),
-          avgRating: Number(dashboardResponse.avgRating || 0),
-          activeDays: Number(dashboardResponse.activeDays || 0),
-        };
-
-        setScore(Number(scoreResponse.score));
-        setConfig(scoreConfigResponse);
-        setMetrics(nextMetrics);
-        setHistory(Array.isArray(historyResponse) ? historyResponse : []);
-        setExplanation({
-          components: scoreResponse.components || null,
-          band: scoreResponse.band || null,
-          suggestions: Array.isArray(scoreResponse.suggestions) ? scoreResponse.suggestions : [],
-        });
-        setStatus({ loading: false, error: "" });
-      } catch (error) {
+      setScore(Number(scoreResponse.score));
+      setConfig(scoreConfigResponse);
+      setMetrics({
+        totalEarnings: Number(dashboardResponse.totalEarnings || 0),
+        jobsCompleted: Number(dashboardResponse.jobsCompleted || 0),
+        avgRating: Number(dashboardResponse.avgRating || 0),
+        activeDays: Number(dashboardResponse.activeDays || 0),
+      });
+      setHistory(Array.isArray(historyResponse) ? historyResponse : []);
+      setExplanation({
+        components: scoreResponse.components || null,
+        band: scoreResponse.band || null,
+        suggestions: Array.isArray(scoreResponse.suggestions) ? scoreResponse.suggestions : [],
+      });
+      setStatus({ loading: false, error: "" });
+    } catch (error) {
+      if (error.name !== "AbortError") {
         setStatus({
           loading: false,
           error: error.response?.data?.message || "Unable to fetch score from backend.",
         });
       }
-    };
-
-    fetchScore();
+    }
   }, [userId]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchScore(controller.signal);
+    return () => controller.abort();
+  }, [fetchScore]);
+
+  const retry = () => {
+    setStatus({ loading: true, error: "" });
+    fetchScore();
+  };
 
   const components = explanation?.components || {};
 
   const contributionRows = config
     ? [
-        {
-          label: "Earnings",
-          formula: `min(${metrics.totalEarnings.toFixed(2)} / ${config.earningsTarget}, 1)^${config.exponents.earnings} x ${config.weights.earnings * 100}`,
-          value: components.earnings,
-        },
-        {
-          label: "Jobs",
-          formula: `min(${metrics.jobsCompleted} / ${config.jobsTarget}, 1)^${config.exponents.jobs} x ${config.weights.jobs * 100}`,
-          value: components.jobs,
-        },
-        {
-          label: "Rating",
-          formula: `min(${metrics.avgRating.toFixed(2)} / ${config.ratingMax}, 1)^${config.exponents.rating} x ${config.weights.rating * 100}`,
-          value: components.rating,
-        },
-        {
-          label: "Active Days",
-          formula: `min(${metrics.activeDays} / ${config.activeDaysTarget}, 1)^${config.exponents.activeDays} x ${config.weights.activeDays * 100}`,
-          value: components.activeDays,
-        },
+        { label: "Earnings", formula: `min(${metrics.totalEarnings.toFixed(2)} / ${config.earningsTarget}, 1)^${config.exponents.earnings} x ${config.weights.earnings * 100}`, value: components.earnings },
+        { label: "Jobs", formula: `min(${metrics.jobsCompleted} / ${config.jobsTarget}, 1)^${config.exponents.jobs} x ${config.weights.jobs * 100}`, value: components.jobs },
+        { label: "Rating", formula: `min(${metrics.avgRating.toFixed(2)} / ${config.ratingMax}, 1)^${config.exponents.rating} x ${config.weights.rating * 100}`, value: components.rating },
+        { label: "Active Days", formula: `min(${metrics.activeDays} / ${config.activeDaysTarget}, 1)^${config.exponents.activeDays} x ${config.weights.activeDays * 100}`, value: components.activeDays },
       ]
     : [];
 
@@ -103,13 +88,14 @@ function Score({ userId }) {
       <div className="grid gap-6 border border-[var(--color-border)] bg-[var(--color-surface)] p-8 transition-colors duration-200 md:grid-cols-[minmax(0,1fr)_260px] md:p-10">
         <div>
           {status.loading ? <p className="text-slate-500 dark:text-slate-300">Loading score...</p> : null}
-
           {status.error ? (
-            <p className="max-w-md border border-rose-300 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300">
-              {status.error}
-            </p>
+            <div className="max-w-md border border-rose-300 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300">
+              <p>{status.error}</p>
+              <button onClick={retry} className="mt-2 text-xs font-bold uppercase tracking-wider text-rose-600 hover:underline dark:text-rose-400">
+                Retry
+              </button>
+            </div>
           ) : null}
-
           {!status.loading && !status.error ? (
             <>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Current Score</p>
@@ -136,19 +122,15 @@ function Score({ userId }) {
       <div className="border border-[var(--color-border)] bg-[var(--color-surface)] p-6 transition-colors duration-200 md:p-7">
         <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Score Breakdown</h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-          Score = (Earnings / EarningsMax)^a x 35 + (Jobs / JobsMax)^b x 25 + (Rating / RatingMax)^c x 30 +
-          (ActiveDays / ActiveDaysMax)^d x 10.
-          We use a={config?.exponents.earnings}, b={config?.exponents.jobs}, c={config?.exponents.rating},
-          d={config?.exponents.activeDays}. Ratios are capped at 1 before power weighting.
+          Score = (Earnings / EarningsMax)^a x 35 + (Jobs / JobsMax)^b x 25 + (Rating / RatingMax)^c x 30 + (ActiveDays / ActiveDaysMax)^d x 10.
+          We use a={config?.exponents.earnings}, b={config?.exponents.jobs}, c={config?.exponents.rating}, d={config?.exponents.activeDays}. Ratios are capped at 1 before power weighting.
         </p>
-
         <div className="mt-5 border border-[var(--color-border)] bg-[var(--color-surface-muted)] p-4 transition-colors duration-200">
           <div className="grid grid-cols-12 border-b border-slate-200 pb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:border-slate-800">
             <p className="col-span-2">Metric</p>
             <p className="col-span-8">Computation</p>
             <p className="col-span-2 text-right">Points</p>
           </div>
-
           <div className="divide-y divide-slate-200 dark:divide-slate-800">
             {contributionRows.map((row) => (
               <div key={row.label} className="grid grid-cols-12 items-center gap-2 py-3 text-sm">
@@ -158,7 +140,6 @@ function Score({ userId }) {
               </div>
             ))}
           </div>
-
           <div className="mt-3 flex items-center justify-between border-t border-slate-300 pt-3 text-base dark:border-slate-700">
             <p className="font-semibold text-slate-700 dark:text-slate-200">Total (server)</p>
             <p className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100">{formatPoints(score)}</p>
@@ -175,9 +156,7 @@ function Score({ userId }) {
             ))}
           </ul>
         ) : (
-          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-            Score details are loading — improvement factors will appear here.
-          </p>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Score details are loading — improvement factors will appear here.</p>
         )}
       </div>
     </section>

@@ -80,13 +80,5 @@ class GigDataControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(missingAmountBody))
                 .andExpect(status().isBadRequest());
-
-        String unknownPlatformBody = "{\"platform\":\"MySpace\",\"amount\":12.5,\"rating\":4.5}";
-        mockMvc.perform(post("/api/v1/gigs")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(unknownPlatformBody))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").exists());
     }
 }

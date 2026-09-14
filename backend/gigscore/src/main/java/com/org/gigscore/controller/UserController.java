@@ -20,7 +20,7 @@ import com.org.gigscore.exception.UnauthorizedAccessException;
 import com.org.gigscore.security.CurrentUserResolver;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/v1/users")
 @Tag(name = "Users", description = "Registration, login and user dashboard")
 public class UserController {
 
