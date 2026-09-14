@@ -1,7 +1,9 @@
 package com.org.gigscore.config;
 
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
+import java.util.Date;
+
+import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -11,41 +13,49 @@ import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtUtil {
-    private final long expirationTime=3600000; // 1 hour
+    private static final long EXPIRATION_TIME = 3600000; // 1 hour
 
-    private final Key key;
+    private final SecretKey key;
 
     public JwtUtil(@Value("${jwt.secret}") String jwtSecret) {
         this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(String email) {
-        return Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(new java.util.Date(System.currentTimeMillis()))
-                .setExpiration(new java.util.Date(System.currentTimeMillis() + expirationTime))
-                .signWith(key)
-                .compact();
+        return generateToken(email, null);
+    }
+
+    public String generateToken(String email, String role) {
+        io.jsonwebtoken.JwtBuilder builder = Jwts.builder()
+                .subject(email)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(key, Jwts.SIG.HS256);
+
+        if (role != null && !role.isBlank()) {
+            builder.claim("role", role);
+        }
+
+        return builder.compact();
     }
 
     public String extractEmail(String token) {
         try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(key)
+            return Jwts.parser()
+                    .verifyWith(key)
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody()
+                    .parseSignedClaims(token)
+                    .getPayload()
                     .getSubject();
         } catch (Exception exception) {
             return null;
         }
     }
 
-    public boolean validateJwtToken(String token){
-        try{
+    public boolean validateJwtToken(String token) {
+        try {
             return extractEmail(token) != null;
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
