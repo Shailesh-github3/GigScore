@@ -25,12 +25,16 @@ public class UserService {
     final GigDataService gigDataService;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
+    private final String dummyPasswordHash;
         
     public UserService(UserRepository userRepository, GigDataService gigDataService, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.gigDataService = gigDataService;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
+        this.dummyPasswordHash = passwordEncoder != null 
+                ? passwordEncoder.encode("dummy-password-for-timing-equalization") 
+                : null;
     }
 
     @Transactional
@@ -66,8 +70,13 @@ public class UserService {
     public ResponseEntity<LoginResponseDTO> login(LoginDTO request) {
         String normalizedEmail = request.getEmail().trim().toLowerCase();
 
-        User user = userRepository.findByEmail(normalizedEmail)
-                .orElseThrow(() -> new UnauthorizedException("Invalid credentials"));
+        java.util.Optional<User> userOptional = userRepository.findByEmail(normalizedEmail);
+        if (userOptional.isEmpty()) {
+            passwordEncoder.matches(request.getPassword(), dummyPasswordHash != null ? dummyPasswordHash : "dummy-hash");
+            throw new UnauthorizedException("Invalid credentials");
+        }
+
+        User user = userOptional.get();
 
         String rawPassword = request.getPassword();
         String storedPassword = user.getPassword();

@@ -125,6 +125,21 @@ class UserServiceTest {
     }
 
     @Test
+    void login_unknownEmail_executesPasswordComparisonAndThrowsUnauthorized() {
+        when(userRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
+
+        LoginDTO loginDTO = new LoginDTO();
+        loginDTO.setEmail("unknown@example.com");
+        loginDTO.setPassword("password123");
+
+        assertThatThrownBy(() -> userService.login(loginDTO))
+                .isInstanceOf(UnauthorizedException.class)
+                .hasMessageContaining("Invalid credentials");
+
+        verify(passwordEncoder).matches(org.mockito.ArgumentMatchers.eq("password123"), any());
+    }
+
+    @Test
     void login_legacyPlaintextPassword_upgradesToBcrypt() {
         User user = userWith("legacy@example.com", UserRole.WORKER);
         user.setPassword("plaintext");

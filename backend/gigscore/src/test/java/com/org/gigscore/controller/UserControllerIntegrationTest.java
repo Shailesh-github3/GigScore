@@ -84,6 +84,52 @@ class UserControllerIntegrationTest {
     }
 
     @Test
+    void loginFailures_returnIdentical401StatusAndBody() throws Exception {
+        // 1. Create a user
+        CreateUserRequest createRequest = new CreateUserRequest();
+        createRequest.setName("Bob");
+        createRequest.setEmail("bob@example.com");
+        createRequest.setPassword("password123");
+
+        mockMvc.perform(post("/api/v1/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createRequest)))
+                .andExpect(status().isOk());
+
+        // 2. Login with unknown email
+        LoginDTO unknownEmailLogin = new LoginDTO();
+        unknownEmailLogin.setEmail("nonexistent@example.com");
+        unknownEmailLogin.setPassword("somepassword");
+
+        String unknownEmailBody = mockMvc.perform(post("/api/v1/users/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(unknownEmailLogin)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Invalid credentials"))
+                .andReturn().getResponse().getContentAsString();
+
+        // 3. Login with wrong password for existing user
+        LoginDTO wrongPasswordLogin = new LoginDTO();
+        wrongPasswordLogin.setEmail("bob@example.com");
+        wrongPasswordLogin.setPassword("wrongpassword");
+
+        String wrongPasswordBody = mockMvc.perform(post("/api/v1/users/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(wrongPasswordLogin)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Invalid credentials"))
+                .andReturn().getResponse().getContentAsString();
+
+        // 4. Assert response status and message are identical
+        com.fasterxml.jackson.databind.JsonNode unknownJson = objectMapper.readTree(unknownEmailBody);
+        com.fasterxml.jackson.databind.JsonNode wrongPasswordJson = objectMapper.readTree(wrongPasswordBody);
+        org.assertj.core.api.Assertions.assertThat(unknownJson.get("status").asInt())
+                .isEqualTo(wrongPasswordJson.get("status").asInt());
+        org.assertj.core.api.Assertions.assertThat(unknownJson.get("message").asText())
+                .isEqualTo(wrongPasswordJson.get("message").asText());
+    }
+
+    @Test
     void actuatorHealth_isPublic() throws Exception {
         mockMvc.perform(get("/actuator/health"))
                 .andExpect(status().isOk())
