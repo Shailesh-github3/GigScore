@@ -26,13 +26,23 @@ public class SecurityConfig {
     private final RateLimitFilter rateLimitFilter;
     private final RequestLoggingFilter requestLoggingFilter;
     private final ErrorResponseWriter errorResponseWriter;
+    private final org.springframework.core.env.Environment environment;
+
+    @org.springframework.beans.factory.annotation.Value("${springdoc.swagger-ui.enabled:false}")
+    private boolean swaggerEnabled;
 
     public SecurityConfig(JwtAuthFilter jwtAuthFilter, RateLimitFilter rateLimitFilter,
-                          RequestLoggingFilter requestLoggingFilter, ErrorResponseWriter errorResponseWriter) {
+                          RequestLoggingFilter requestLoggingFilter, ErrorResponseWriter errorResponseWriter,
+                          org.springframework.core.env.Environment environment) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.rateLimitFilter = rateLimitFilter;
         this.requestLoggingFilter = requestLoggingFilter;
         this.errorResponseWriter = errorResponseWriter;
+        this.environment = environment;
+    }
+
+    private boolean isSwaggerExposed() {
+        return swaggerEnabled || environment.acceptsProfiles(org.springframework.core.env.Profiles.of("dev", "local"));
     }
 
     @Bean
@@ -54,6 +64,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        boolean allowSwagger = isSwaggerExposed();
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(Customizer.withDefaults())
@@ -61,13 +72,16 @@ public class SecurityConfig {
             .exceptionHandling(exception -> exception
                 .authenticationEntryPoint(authenticationEntryPoint())
                 .accessDeniedHandler(accessDeniedHandler()))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/v1/users/login", "/error").permitAll()
-                .requestMatchers("/api/v1/users").permitAll()
-                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/actuator/**").permitAll()
-                .requestMatchers("/api/v1/lender/**").hasRole("LENDER")
-                .anyRequest().authenticated())
+            .authorizeHttpRequests(auth -> {
+                auth.requestMatchers("/api/v1/users/login", "/error").permitAll()
+                    .requestMatchers("/api/v1/users").permitAll();
+                if (allowSwagger) {
+                    auth.requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll();
+                }
+                auth.requestMatchers("/actuator/**").permitAll()
+                    .requestMatchers("/api/v1/lender/**").hasRole("LENDER")
+                    .anyRequest().authenticated();
+            })
             .httpBasic(httpBasic -> httpBasic.disable())
             .formLogin(formLogin -> formLogin.disable())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
