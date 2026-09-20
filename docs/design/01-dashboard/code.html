@@ -1,0 +1,566 @@
+<!DOCTYPE html><html lang="en"><svg class="inline-defs-container" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"></svg><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=JetBrains+Mono:wght@100..900&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "on-tertiary-fixed": "#00174b",
+          "surface": "#f9f9ff",
+          "secondary-container": "#e3e2e5",
+          "primary-container": "#00855d",
+          "on-surface-variant": "#3d4a42",
+          "on-secondary": "#ffffff",
+          "secondary-fixed-dim": "#c7c6c9",
+          "surface-container-low": "#f0f3ff",
+          "primary-fixed": "#85f8c4",
+          "tertiary-fixed-dim": "#b4c5ff",
+          "surface-container-lowest": "#ffffff",
+          "tertiary-fixed": "#dbe1ff",
+          "surface-bright": "#f9f9ff",
+          "surface-container-high": "#e2e8f8",
+          "primary-fixed-dim": "#68dba9",
+          "surface-container": "#e7eefe",
+          "on-tertiary-container": "#fefcff",
+          "primary": "#006948",
+          "secondary": "#5e5e61",
+          "tertiary": "#0051d5",
+          "surface-dim": "#d3daea",
+          "outline": "#6d7a72",
+          "error-container": "#ffdad6",
+          "on-tertiary": "#ffffff",
+          "on-error": "#ffffff",
+          "inverse-on-surface": "#ebf1ff",
+          "on-primary-container": "#f5fff7",
+          "on-secondary-fixed": "#1b1c1e",
+          "surface-variant": "#dce2f3",
+          "on-secondary-container": "#646467",
+          "error": "#ba1a1a",
+          "inverse-surface": "#2a313d",
+          "surface-container-highest": "#dce2f3",
+          "inverse-primary": "#68dba9",
+          "secondary-fixed": "#e3e2e5",
+          "surface-tint": "#006c4a",
+          "on-background": "#151c27",
+          "on-primary": "#ffffff",
+          "on-error-container": "#93000a",
+          "tertiary-container": "#316bf3",
+          "on-tertiary-fixed-variant": "#003ea8",
+          "on-surface": "#151c27",
+          "on-secondary-fixed-variant": "#464749",
+          "on-primary-fixed-variant": "#005137",
+          "outline-variant": "#bccac0",
+          "on-primary-fixed": "#002114",
+          "background": "#f9f9ff"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.125rem",
+          "lg": "0.25rem",
+          "xl": "0.5rem",
+          "full": "0.75rem"
+        },
+        "spacing": {
+          "gutter-desktop": "1.5rem",
+          "space-lg": "1.25rem",
+          "margin": "1rem",
+          "space-sm": "0.5rem",
+          "margin-desktop": "2rem",
+          "space-xl": "2rem",
+          "space-md": "0.75rem",
+          "gutter": "1rem",
+          "space-xs": "0.25rem"
+        },
+        "fontFamily": {
+          "headline-lg": ["Geist"],
+          "metric-display": ["Geist"],
+          "headline-xl": ["Geist"],
+          "label-sm": ["JetBrains Mono"],
+          "body-lg": ["Geist"],
+          "headline-md": ["Geist"],
+          "body-md": ["Geist"],
+          "headline-xl-mobile": ["Geist"],
+          "label-md": ["JetBrains Mono"],
+          "headline-sm": ["Geist"],
+          "body-sm": ["Geist"]
+        },
+        "fontSize": {
+          "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+          "metric-display": ["32px", {"lineHeight": "38px", "letterSpacing": "-0.03em", "fontWeight": "600"}],
+          "headline-xl": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.03em", "fontWeight": "600"}],
+          "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "500"}],
+          "body-lg": ["16px", {"lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "400"}],
+          "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600"}],
+          "body-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400"}],
+          "headline-xl-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.025em", "fontWeight": "600"}],
+          "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+          "headline-sm": ["16px", {"lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+          "body-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400"}]
+        }
+      }
+    }
+  }</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest border-r border-outline-variant/30 z-50 flex flex-col justify-between"><div class="flex flex-col"><div class="h-14 flex items-center px-space-md gap-space-sm border-b border-outline-variant/20"><img alt="GigScore Brand Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1Vtnpr2DCAJR6tjHpY5oAYYnpQ_uO83z9IqES3axaV15M8zWj0x7jWEdZKD56JsBzMbVflq5vWTJDjSuCen6d7dw8tw2Vzw4BWQ8C8R2e_WteeippqmlRG_HhKk1Z56_vHYEgeeKQ_XsfsjV1HuDsJm916kqR1nduJzpcFMANlsAdpgzSkFKQ8MJbpXKQh7YNoi1ZmjCuU3pbD-LinoJ3Mi6t1kuQAtP07c5_DsfTk8KKo_1OChZg2Tc0Y"><div class="flex flex-col"><span class="font-headline-sm text-headline-sm tracking-tight text-on-surface">GigScore</span><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest text-[9px]">Performance Engine</span></div></div><div class="px-space-md pt-space-md"><div class="px-space-xs mb-space-xs font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant/70">Platform Console</div><nav class="space-y-1" data-active-classes="bg-surface-container-low text-primary font-semibold"><a aria-current="page" class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg transition-colors bg-surface-container-low text-primary font-semibold" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[18px]">grid_view</span><span class="font-body-md text-body-md">Dashboard</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="platforms" href="#"><span class="material-symbols-outlined text-[18px]">hub</span><span class="font-body-md text-body-md">Platforms</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="gigscore" href="#"><span class="material-symbols-outlined text-[18px]">speed</span><span class="font-body-md text-body-md">GigScore</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="activity" href="#"><span class="material-symbols-outlined text-[18px]">receipt_long</span><span class="font-body-md text-body-md">Activity</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="insights" href="#"><span class="material-symbols-outlined text-[18px]">query_stats</span><span class="font-body-md text-body-md">Insights</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="settings" href="#"><span class="material-symbols-outlined text-[18px]">settings</span><span class="font-body-md text-body-md">Settings</span></a></nav></div></div><div class="p-space-md border-t border-outline-variant/20 bg-surface-container-lowest"><div class="flex items-center justify-between p-space-xs rounded-lg hover:bg-surface-container-low transition-colors"><div class="flex items-center gap-space-sm min-w-0"><img alt="Profile" class="w-8 h-8 rounded-full object-cover flex-shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpbORd441VDWhjlPG9AuYifGBZExrlIelBWsEeTjbyTfOo_9BreQnAi2ExJvngoB2yGpMzzACh7IoJO0G4E5LbHDi2hDH5sQrgBVxEX1tkMTHxVnCk8wKX3cobg3UearUR5wiANyeAbaFTGQTdCmOXQ8MQ66qcopEfctNJO_wXcREa19qGUyfjNM2ElIdXI1L8QyoMqd7UwG5YS3ZVpCAR3rfJbU4RxXIq-75qfhuAoR49Mh6xvYW3"><div class="flex flex-col min-w-0"><span class="font-headline-sm text-headline-sm text-on-surface truncate text-[13px]">Alex Rivera</span><div class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0"></span><span class="font-label-sm text-label-sm text-primary uppercase text-[10px]">Pro Operator</span></div></div></div><button aria-label="Account Actions" class="text-on-surface-variant hover:text-on-surface transition-colors p-1"><span class="material-symbols-outlined text-[18px]">more_vert</span></button></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-14 bg-surface-container-lowest/90 backdrop-blur-md border-b border-outline-variant/20 z-40 px-space-lg flex items-center justify-between"><div class="flex items-center gap-space-md text-on-surface-variant"><div class="flex items-center gap-space-xs text-on-surface-variant"><span class="material-symbols-outlined text-[16px]">calendar_today</span><span class="font-label-sm text-label-sm">Live Sync: Q3 2024</span></div><span class="text-outline-variant/50">|</span><div class="flex items-center gap-space-xs text-on-surface-variant"><span class="material-symbols-outlined text-[16px]">search</span><span class="font-body-sm text-body-sm text-on-surface-variant/80 hidden sm:inline">Quick jump (⌘K)...</span></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-2 py-0.5 rounded bg-surface-container-low border border-outline-variant/30"><span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span><span class="font-label-sm text-label-sm text-primary font-medium uppercase">4 Nodes Active</span></div><button aria-label="Notifications" class="relative p-1.5 text-on-surface-variant hover:text-on-surface transition-colors rounded-md hover:bg-surface-container-low"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span></button><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpbORd441VDWhjlPG9AuYifGBZExrlIelBWsEeTjbyTfOo_9BreQnAi2ExJvngoB2yGpMzzACh7IoJO0G4E5LbHDi2hDH5sQrgBVxEX1tkMTHxVnCk8wKX3cobg3UearUR5wiANyeAbaFTGQTdCmOXQ8MQ66qcopEfctNJO_wXcREa19qGUyfjNM2ElIdXI1L8QyoMqd7UwG5YS3ZVpCAR3rfJbU4RxXIq-75qfhuAoR49Mh6xvYW3"></div></header><main class="w-full pt-14 px-gutter-desktop min-h-screen bg-surface"><div class="flex flex-col w-full pb-space-xl">
+<!-- Dynamic Notification / Live Toast Trigger -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md py-space-md">
+<div class="flex flex-col space-y-space-xs">
+<div class="flex items-center gap-space-xs">
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Good morning, Alex</h1>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-surface-container-high text-on-surface-variant">
+<span class="w-1.5 h-1.5 rounded-full bg-primary mr-1.5 animate-ping"></span>
+          Thursday, Oct 24 • Live sync active
+        </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Your real-time consolidated performance stream across 4 connected platforms.</p>
+</div>
+<div class="flex items-center gap-space-sm self-start sm:self-auto">
+<button class="group flex items-center gap-space-xs px-space-md py-2 rounded-lg bg-surface-container-lowest hover:bg-surface-container-low text-on-surface shadow-sm transition-all duration-150 active:scale-[0.99]" id="syncButton">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant group-hover:rotate-180 transition-transform duration-500">sync</span>
+<span class="font-headline-sm text-headline-sm text-[13px]">Sync All Platforms</span>
+</button>
+<div class="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container-lowest text-label-sm font-label-sm text-on-surface-variant shadow-sm">
+<span class="text-on-surface font-semibold">Latency:</span> 124ms
+      </div>
+</div>
+</div>
+<!-- Primary 4 Metric Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md mt-space-md">
+<!-- Metric 1: Today's Earnings -->
+<div class="flex flex-col justify-between p-space-lg rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="absolute -right-6 -bottom-6 w-24 h-24 bg-primary/5 rounded-full blur-xl group-hover:bg-primary/10 transition-all pointer-events-none"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Today's Earnings</span>
+<span class="material-symbols-outlined text-[18px] text-primary">payments</span>
+</div>
+<div class="my-space-md flex flex-col">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-metric-display text-metric-display text-on-surface tracking-tight">$184.50</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">USD</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-primary-fixed/30 text-primary font-semibold">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+          +12.4% vs yesterday
+        </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant/80">3 payouts</span>
+</div>
+</div>
+<!-- Metric 2: Jobs Completed -->
+<div class="flex flex-col justify-between p-space-lg rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Jobs Completed</span>
+<span class="material-symbols-outlined text-[18px] text-tertiary">task_alt</span>
+</div>
+<div class="my-space-md flex flex-col">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-metric-display text-metric-display text-on-surface tracking-tight">8</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">units</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-surface-container-low text-on-surface font-medium">
+<span class="material-symbols-outlined text-[14px] text-primary">add</span>
+          +2 today
+        </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant/80">Goal: 10/day</span>
+</div>
+</div>
+<!-- Metric 3: Average Rating -->
+<div class="flex flex-col justify-between p-space-lg rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Average Rating</span>
+<div class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-surface-container-low text-on-surface font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px] text-amber-500" style="font-variation-settings: 'FILL' 1;">star</span>
+<span>99.4% CSAT</span>
+</div>
+</div>
+<div class="my-space-md flex flex-col">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-metric-display text-metric-display text-on-surface tracking-tight">4.87</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">/ 5.0</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-primary-fixed/30 text-primary font-semibold">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span>
+          +0.08 this month
+        </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant/80">312 Reviews</span>
+</div>
+</div>
+<!-- Metric 4: GigScore -->
+<div class="flex flex-col justify-between p-space-lg rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Composite GigScore</span>
+<span class="material-symbols-outlined text-[18px] text-primary">verified</span>
+</div>
+<div class="my-space-md flex flex-col gap-1">
+<div class="flex items-baseline justify-between">
+<span class="font-metric-display text-metric-display text-on-surface tracking-tight">842</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Top 4% Global</span>
+</div>
+<!-- Mini Progress Bar -->
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden mt-1">
+<div class="bg-primary h-full rounded-full transition-all duration-500" style="width: 84.2%"></div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-primary-fixed/30 text-primary font-semibold">
+<span class="material-symbols-outlined text-[14px]">north_east</span>
+          +24 this week
+        </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant/80">Tier: Platinum</span>
+</div>
+</div>
+</div>
+<!-- Bento Style Main Workspace (2/3 + 1/3) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg mt-space-lg">
+<!-- Left 8 Columns: Earnings Overview & Activity Stream -->
+<div class="lg:col-span-8 flex flex-col gap-space-lg">
+<!-- Earnings Chart Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<!-- Card Header Controls -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md pb-space-md">
+<!-- Segmented Pill Selector -->
+<div class="inline-flex p-1 bg-surface-container-low rounded-lg self-start">
+<button class="px-3 py-1 text-label-sm font-label-sm font-semibold rounded-md bg-surface-container-lowest text-on-surface shadow-xs transition-all">Earnings</button>
+<button class="px-3 py-1 text-label-sm font-label-sm text-on-surface-variant hover:text-on-surface rounded-md transition-all">Jobs</button>
+<button class="px-3 py-1 text-label-sm font-label-sm text-on-surface-variant hover:text-on-surface rounded-md transition-all">Rating</button>
+<button class="px-3 py-1 text-label-sm font-label-sm text-on-surface-variant hover:text-on-surface rounded-md transition-all">GigScore</button>
+</div>
+<!-- Time Range Filter -->
+<div class="inline-flex items-center gap-1 bg-surface-container-low p-0.5 rounded-lg self-start sm:self-auto">
+<button class="px-2.5 py-1 text-label-sm font-label-sm font-semibold bg-surface-container-lowest text-primary rounded shadow-xs">7D</button>
+<button class="px-2.5 py-1 text-label-sm font-label-sm text-on-surface-variant hover:text-on-surface rounded">30D</button>
+<button class="px-2.5 py-1 text-label-sm font-label-sm text-on-surface-variant hover:text-on-surface rounded">3M</button>
+<button class="px-2.5 py-1 text-label-sm font-label-sm text-on-surface-variant hover:text-on-surface rounded">1Y</button>
+</div>
+</div>
+<!-- Big Highlight Stat & Vector Chart -->
+<div class="flex flex-col pt-space-xs">
+<div class="flex flex-wrap items-baseline justify-between gap-2 mb-space-md">
+<div>
+<span class="font-headline-xl text-headline-xl text-on-surface tracking-tight">$1,482.00</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant ml-2">past 7 days</span>
+</div>
+<div class="flex items-center gap-space-sm font-label-sm text-label-sm">
+<span class="flex items-center gap-1 text-primary font-semibold">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+                Avg $211.71/day
+              </span>
+<span class="text-outline-variant/60">/</span>
+<span class="text-on-surface-variant">Paced for $6,340/mo</span>
+</div>
+</div>
+<!-- Minimalist Vector Chart Canvas -->
+<div class="relative w-full h-56 bg-surface-container-lowest pt-2 select-none">
+<!-- Grid Lines -->
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-40">
+<div class="w-full h-px bg-surface-container-high"></div>
+<div class="w-full h-px bg-surface-container-high"></div>
+<div class="w-full h-px bg-surface-container-high"></div>
+<div class="w-full h-px bg-surface-container-high"></div>
+</div>
+<!-- SVG Vector Area Chart -->
+<svg class="w-full h-44 overflow-visible" preserveAspectRatio="none" viewBox="0 0 700 160">
+<defs>
+<linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#006948" stop-opacity="0.18"></stop>
+<stop offset="100%" stop-color="#006948" stop-opacity="0.0"></stop>
+</linearGradient>
+</defs>
+<!-- Subtle Baseline Shadow Guide -->
+<path d="M 0,110 Q 50,105 100,120 T 200,90 T 300,60 T 400,85 T 500,45 T 600,30 T 700,15 L 700,160 L 0,160 Z" fill="url(#chartGradient)"></path>
+<!-- Continuous Stroke Path -->
+<path d="M 0,110 Q 50,105 100,120 T 200,90 T 300,60 T 400,85 T 500,45 T 600,30 T 700,15" fill="none" stroke="#006948" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+<!-- Data Nodes -->
+<circle class="fill-surface-container-lowest stroke-primary stroke-[2]" cx="100" cy="120" r="3.5"></circle>
+<circle class="fill-surface-container-lowest stroke-primary stroke-[2]" cx="200" cy="90" r="3.5"></circle>
+<circle class="fill-surface-container-lowest stroke-primary stroke-[2]" cx="300" cy="60" r="3.5"></circle>
+<circle class="fill-surface-container-lowest stroke-primary stroke-[2]" cx="400" cy="85" r="3.5"></circle>
+<circle class="fill-surface-container-lowest stroke-primary stroke-[2]" cx="500" cy="45" r="3.5"></circle>
+<circle class="fill-surface-container-lowest stroke-primary stroke-[2]" cx="600" cy="30" r="3.5"></circle>
+<!-- Active Node Reticle & Tooltip (Today) -->
+<g class="cursor-pointer">
+<line opacity="0.6" stroke="#006948" stroke-dasharray="3 3" stroke-width="1.5" x1="700" x2="700" y1="15" y2="160"></line>
+<circle class="fill-primary stroke-surface-container-lowest stroke-[2] shadow-md" cx="700" cy="15" r="5"></circle>
+</g>
+</svg>
+<!-- X-Axis Labels -->
+<div class="flex justify-between items-center text-label-sm font-label-sm text-on-surface-variant pt-2">
+<span class="text-left w-8">Mon</span>
+<span class="text-center w-8">Tue</span>
+<span class="text-center w-8">Wed</span>
+<span class="text-center w-8">Thu</span>
+<span class="text-center w-8">Fri</span>
+<span class="text-center w-8">Sat</span>
+<span class="text-right w-8 font-semibold text-primary">Sun</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-md mt-space-md border-t border-surface-container-high/40 text-label-sm font-label-sm text-on-surface-variant">
+<div class="flex items-center gap-space-sm">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span>Peak earning window: 18:00 - 21:30 CST</span>
+</div>
+<a class="text-primary hover:text-on-primary-fixed-variant font-medium flex items-center gap-0.5" href="#">
+            Export ledger CSV
+            <span class="material-symbols-outlined text-[14px]">arrow_outward</span>
+</a>
+</div>
+</div>
+<!-- Recent Activity Section -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-on-surface text-[20px]">history</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Recent Activity</h2>
+<span class="px-2 py-0.5 text-label-sm font-label-sm bg-surface-container-low rounded-full text-on-surface-variant">Live stream</span>
+</div>
+<button class="font-label-sm text-label-sm text-primary hover:text-on-primary-fixed-variant font-semibold inline-flex items-center gap-1 transition-colors">
+            View full ledger
+            <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+</button>
+</div>
+<!-- Activity Timeline Table-Style Rows -->
+<div class="divide-y divide-surface-container/60 mt-space-sm">
+<!-- Row 1: Uber Delivery -->
+<div class="py-space-md flex items-center justify-between hover:bg-surface-container-low/40 px-space-xs rounded transition-colors group">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-9 h-9 rounded-lg bg-surface-container-low flex items-center justify-center text-on-surface flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]">local_shipping</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-[14px] text-on-surface truncate">Completed Delivery: Route #8492</span>
+<span class="px-1.5 py-0.5 text-[10px] font-label-sm rounded bg-surface-container-high text-on-surface uppercase font-medium">Uber</span>
+</div>
+<div class="flex items-center gap-2 text-label-sm font-label-sm text-on-surface-variant">
+<span>22m ago</span>
+<span>•</span>
+<span>Downtown to Westlake (4.2 mi)</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-md flex-shrink-0">
+<div class="text-right">
+<span class="font-label-md text-label-md font-semibold text-on-surface">+$24.50</span>
+<span class="block text-label-sm font-label-sm text-primary">Completed</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant/40 group-hover:text-on-surface transition-colors">more_vert</span>
+</div>
+</div>
+<!-- Row 2: Upwork Project -->
+<div class="py-space-md flex items-center justify-between hover:bg-surface-container-low/40 px-space-xs rounded transition-colors group">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-9 h-9 rounded-lg bg-surface-container-low flex items-center justify-center text-on-surface flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-[14px] text-on-surface truncate">Milestone: FinTech UI Kit V2 Architecture</span>
+<span class="px-1.5 py-0.5 text-[10px] font-label-sm rounded bg-surface-container-high text-on-surface uppercase font-medium">Upwork</span>
+</div>
+<div class="flex items-center gap-2 text-label-sm font-label-sm text-on-surface-variant">
+<span>2h ago</span>
+<span>•</span>
+<span>Escrow released immediately</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-md flex-shrink-0">
+<div class="text-right">
+<span class="font-label-md text-label-md font-semibold text-on-surface">+$180.00</span>
+<span class="block text-label-sm font-label-sm text-primary">Settled</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant/40 group-hover:text-on-surface transition-colors">more_vert</span>
+</div>
+</div>
+<!-- Row 3: Fiverr Rating Received -->
+<div class="py-space-md flex items-center justify-between hover:bg-surface-container-low/40 px-space-xs rounded transition-colors group">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-9 h-9 rounded-lg bg-surface-container-low flex items-center justify-center text-amber-500 flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-[14px] text-on-surface truncate">Received 5.0 Star Feedback</span>
+<span class="px-1.5 py-0.5 text-[10px] font-label-sm rounded bg-surface-container-high text-on-surface uppercase font-medium">Fiverr</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant truncate italic">“Exceptional communication and delivery speed, clean handoff!”</p>
+</div>
+</div>
+<div class="flex items-center gap-space-md flex-shrink-0">
+<div class="text-right">
+<span class="font-label-md text-label-md font-semibold text-on-surface">5.0 / 5.0</span>
+<span class="block text-label-sm font-label-sm text-on-surface-variant">4h ago</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant/40 group-hover:text-on-surface transition-colors">more_vert</span>
+</div>
+</div>
+<!-- Row 4: Fiverr Order Completed -->
+<div class="py-space-md flex items-center justify-between hover:bg-surface-container-low/40 px-space-xs rounded transition-colors group">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-9 h-9 rounded-lg bg-surface-container-low flex items-center justify-center text-on-surface flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-[14px] text-on-surface truncate">Order #FO-99120: Mobile App Accessibility Audit</span>
+<span class="px-1.5 py-0.5 text-[10px] font-label-sm rounded bg-surface-container-high text-on-surface uppercase font-medium">Fiverr</span>
+</div>
+<div class="flex items-center gap-2 text-label-sm font-label-sm text-on-surface-variant">
+<span>6h ago</span>
+<span>•</span>
+<span>Completed 14h ahead of deadline</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-md flex-shrink-0">
+<div class="text-right">
+<span class="font-label-md text-label-md font-semibold text-on-surface">+$45.00</span>
+<span class="block text-label-sm font-label-sm text-primary">Completed</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant/40 group-hover:text-on-surface transition-colors">more_vert</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right 4 Columns: Side Modules (AI Intelligence, Sync Status, Daily Goal) -->
+<div class="lg:col-span-4 flex flex-col gap-space-lg">
+<!-- AI Performance Insight Card (Stripe/Linear precision look) -->
+<div class="relative bg-surface-container-lowest rounded-xl p-space-lg shadow-sm overflow-hidden flex flex-col justify-between">
+<!-- Emerald hairline indicator atop the card -->
+<div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary-fixed to-primary"></div>
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-label-sm font-label-sm bg-primary-fixed/40 text-on-primary-fixed-variant font-semibold">
+<span class="material-symbols-outlined text-[14px] text-primary">auto_awesome</span>
+              AI Performance Insight
+            </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Updated 10m ago</span>
+</div>
+<div class="my-space-md p-space-md bg-surface-container-low rounded-lg">
+<p class="font-body-md text-body-md text-on-surface leading-relaxed">
+              “Your aggregate rating has climbed <span class="font-semibold text-primary">+6%</span> over the last 30 days. Maintaining your rapid response time (&lt;15m) could elevate your GigScore by another <span class="font-semibold text-primary">+12 pts</span>.”
+            </p>
+</div>
+<div class="space-y-space-xs font-label-sm text-label-sm text-on-surface-variant mb-space-md">
+<div class="flex items-center justify-between">
+<span>Avg Response Window:</span>
+<span class="font-semibold text-on-surface">11 mins</span>
+</div>
+<div class="flex items-center justify-between">
+<span>Order Cancellation Rate:</span>
+<span class="font-semibold text-primary">0.0% (Zero fault)</span>
+</div>
+</div>
+</div>
+<button class="w-full py-2.5 px-space-md rounded-lg bg-on-surface text-on-secondary hover:bg-on-surface/90 text-headline-sm font-headline-sm text-[13px] flex items-center justify-center gap-2 transition-all active:scale-[0.99] shadow-sm">
+<span>View improvement plan</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+<!-- Connected Quick Status -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-on-surface">hub</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Connected Platforms</h3>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-semibold">4 / 4 Synced</span>
+</div>
+<div class="grid grid-cols-2 gap-space-xs mt-space-sm">
+<!-- Platform 1: Uber -->
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-[13px] text-on-surface">Uber</span>
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">Healthy Sync</span>
+</div>
+<!-- Platform 2: Upwork -->
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-[13px] text-on-surface">Upwork</span>
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">Healthy Sync</span>
+</div>
+<!-- Platform 3: Fiverr -->
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-[13px] text-on-surface">Fiverr</span>
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">Healthy Sync</span>
+</div>
+<!-- Platform 4: DoorDash -->
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-[13px] text-on-surface">DoorDash</span>
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">Healthy Sync</span>
+</div>
+</div>
+<!-- Add Integration Ghost Button -->
+<button class="mt-space-md w-full py-2 rounded-lg bg-surface-container-low hover:bg-surface-container hover:text-on-surface text-on-surface-variant font-label-sm text-label-sm flex items-center justify-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[16px]">add_circle</span>
+<span>Connect New Platform</span>
+</button>
+</div>
+<!-- Daily Goal Progress Widget -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-on-surface">flag</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Daily Revenue Target</span>
+</div>
+<span class="font-label-sm text-label-sm font-bold text-primary">74%</span>
+</div>
+<div class="my-space-xs flex items-baseline justify-between">
+<span class="font-headline-lg text-headline-lg text-on-surface tracking-tight">$184.50</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">of $250.00 target</span>
+</div>
+<!-- Progress Bar -->
+<div class="w-full bg-surface-container-high h-2.5 rounded-full overflow-hidden my-space-sm p-0.5">
+<div class="bg-primary h-full rounded-full transition-all duration-700 ease-out" style="width: 73.8%;"></div>
+</div>
+<div class="flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant pt-space-xs">
+<span>Remaining to milestone:</span>
+<span class="font-semibold text-on-surface">$65.50</span>
+</div>
+</div>
+<!-- Live Operations Mini Snippet -->
+<div class="p-space-md rounded-xl bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">verified</span>
+<span class="font-label-sm text-label-sm text-on-surface">Bank Auto-Sweep Scheduled</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Tonight, 23:59</span>
+</div>
+</div>
+</div>
+<script>
+    // Sync Button micro-interaction
+    const syncBtn = document.getElementById('syncButton');
+    if (syncBtn) {
+      syncBtn.addEventListener('click', () => {
+        const icon = syncBtn.querySelector('.material-symbols-outlined');
+        const text = syncBtn.querySelector('span:nth-child(2)');
+        if (icon && text) {
+          icon.classList.add('animate-spin');
+          text.textContent = 'Syncing...';
+          setTimeout(() => {
+            icon.classList.remove('animate-spin');
+            text.textContent = 'Synced Just Now';
+            setTimeout(() => {
+              text.textContent = 'Sync All Platforms';
+            }, 2500);
+          }, 1200);
+        }
+      });
+    }
+  </script>
+</div></main></div></body></html>

@@ -49,7 +49,7 @@ A full-stack performance tracking platform for gig workers and freelancers. GigS
 
 - **JWT Authentication** — Register/login with stateless tokens, BCrypt passwords, 1-hour expiry
 - **Unified Dashboard** — Earnings, jobs, average rating, and active days in one view
-- **Multi-Platform Tracking** — Log gigs from Uber, Upwork, Fiverr, Swiggy, Zomato, Rapido, DoorDash, TaskRabbit, Lyft, Freelancer
+- **Multi-Platform Tracking** — Categorized event logging across supported platforms (Uber, Upwork, Fiverr, Swiggy, Zomato, Rapido, DoorDash, TaskRabbit, Lyft, Freelancer)
 - **Score Computation** — Weighted exponential formula producing a 0-100 score, computed server-side with a versioned config
 - **Score History** — Persisted per-user snapshot log; chart renders real trajectory
 - **Score Explanation** — Per-component point breakdown, band badge (EARLY/GROWING/STRONG), and two weakest-lever improvement suggestions
@@ -60,7 +60,7 @@ A full-stack performance tracking platform for gig workers and freelancers. GigS
 - **Rate Limiting** — Sliding-window in-memory limiter: login 10/min, chat 20/min per IP
 - **Request Logging** — Completion-level access logs with status and duration
 - **Actuator** — `/actuator/health` endpoint, public for uptime checks
-- **Interactive API Docs** — Swagger UI with in-browser JWT authorization
+- **Interactive API Docs** — Swagger UI with in-browser JWT authorization (dev environment or when enabled)
 - **Light/Dark Theme** — Persistent preference on the frontend
 
 ### Project Structure
@@ -218,6 +218,7 @@ cp .env.example .env
 | `GEMINI_MODEL` | Gemini model identifier | Optional (defaults to `gemini-2.5-flash`) | `gemini-2.5-flash` |
 | `DEMO_LENDER_EMAIL` | Email for a seeded `LENDER` user | Optional (blank = skip) | `demo_lender@example.com` |
 | `DEMO_LENDER_PASSWORD` | Password for seeded lender account | Optional (blank = skip) | `<STRONG_PASSWORD>` |
+| `SWAGGER_ENABLED` | Explicitly enable Swagger UI and API docs | Optional (defaults to `false` in production) | `false` |
 
 > **Security Note:** `DB_PASSWORD` and `JWT_SECRET` have no hardcoded insecure defaults. `JwtUtil` will fail fast at application startup if `JWT_SECRET` is missing or shorter than 32 bytes (256 bits). Never commit `.env` or any real secrets to Git.
 
@@ -245,7 +246,9 @@ Frontend starts at `http://localhost:5173`.
 Swagger UI: `http://localhost:8080/swagger-ui.html`
 OpenAPI spec: `http://localhost:8080/v3/api-docs`
 
-To test authenticated endpoints, click **Authorize** in Swagger UI and paste a JWT token.
+> **Note:** By default, Swagger UI and OpenAPI documentation are enabled only in `dev`/`local` profiles or when `SWAGGER_ENABLED=true` is set. In production environments, they are disabled to avoid exposing API structure.
+
+To test authenticated endpoints in development, click **Authorize** in Swagger UI and paste a JWT token.
 
 ---
 
