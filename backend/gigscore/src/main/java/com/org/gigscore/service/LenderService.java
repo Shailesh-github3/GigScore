@@ -3,6 +3,9 @@ package com.org.gigscore.service;
 import java.util.Comparator;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,7 +14,9 @@ import com.org.gigscore.dto.DataQualityProfile;
 import com.org.gigscore.dto.LenderWorkerDetail;
 import com.org.gigscore.dto.LenderWorkerSummary;
 import com.org.gigscore.dto.ScoreResponse;
+import com.org.gigscore.dto.WorkerSummaryProjection;
 import com.org.gigscore.entity.User;
+import com.org.gigscore.entity.UserRole;
 import com.org.gigscore.repository.UserRepository;
 import com.org.gigscore.service.UserMetricsService.UserAggregateMetrics;
 import com.org.gigscore.exception.ResourceNotFoundException;
@@ -33,11 +38,35 @@ public class LenderService {
     }
 
     @Transactional(readOnly = true)
+    public Page<LenderWorkerSummary> getWorkers(Pageable pageable) {
+        int page = Math.max(pageable.getPageNumber(), 0);
+        int size = Math.min(Math.max(pageable.getPageSize(), 1), 50);
+        Pageable safePageable = PageRequest.of(page, size);
+
+        Page<WorkerSummaryProjection> projections = userRepository.findWorkerSummaries(UserRole.WORKER, safePageable);
+        return projections.map(this::toSummaryFromProjection);
+    }
+
+    @Transactional(readOnly = true)
     public List<LenderWorkerSummary> getAllWorkers() {
-        return userRepository.findAll().stream()
-                .map(this::toSummary)
-                .sorted(Comparator.comparing(LenderWorkerSummary::getScore, Comparator.nullsLast(Comparator.naturalOrder())).reversed())
-                .toList();
+        return getWorkers(PageRequest.of(0, 50)).getContent();
+    }
+
+    private LenderWorkerSummary toSummaryFromProjection(WorkerSummaryProjection p) {
+        int jobs = p.getJobsCompleted() != null ? p.getJobsCompleted().intValue() : 0;
+        int days = p.getActiveDays() != null ? p.getActiveDays().intValue() : 0;
+
+        return LenderWorkerSummary.builder()
+                .userId(p.getUserId())
+                .name(p.getName())
+                .email(p.getEmail())
+                .score(p.getScore())
+                .band(p.getScore() != null ? gigScoreService.bandFor(p.getScore()) : null)
+                .totalEarnings(p.getTotalEarnings() != null ? p.getTotalEarnings().doubleValue() : 0.0)
+                .jobsCompleted(jobs)
+                .activeDays(days)
+                .dataQuality(gigScoreService.computeDataQuality(jobs, days))
+                .build();
     }
 
     @Transactional(readOnly = true)

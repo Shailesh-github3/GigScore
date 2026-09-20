@@ -29,7 +29,8 @@ function Lenders() {
     getWorkers()
       .then((data) => {
         if (!cancelled) {
-          setWorkers(data);
+          const list = Array.isArray(data) ? data : (data?.content || []);
+          setWorkers(list);
           setStatus({ loading: false, error: "" });
         }
       })

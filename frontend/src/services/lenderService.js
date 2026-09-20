@@ -1,7 +1,8 @@
 import httpClient from "./httpClient";
 
-export async function getWorkers() {
-  const response = await httpClient.get("/api/v1/lender/workers");
+export async function getWorkers(params) {
+  const url = params ? `/api/v1/lender/workers?page=${params.page ?? 0}&size=${params.size ?? 20}` : "/api/v1/lender/workers";
+  const response = await httpClient.get(url);
   return response.data;
 }
 

@@ -80,10 +80,10 @@ class LenderControllerIntegrationTest {
         mockMvc.perform(get("/api/v1/lender/workers")
                         .header("Authorization", "Bearer " + lenderToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$[0].userId").isNumber())
-                .andExpect(jsonPath("$[0].name").isString())
-                .andExpect(jsonPath("$[0].dataQuality.confidence").isString());
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content[0].userId").isNumber())
+                .andExpect(jsonPath("$.content[0].name").isString())
+                .andExpect(jsonPath("$.content[0].dataQuality.confidence").isString());
 
         mockMvc.perform(get("/api/v1/lender/workers/" + worker.userId())
                         .header("Authorization", "Bearer " + lenderToken))

@@ -139,7 +139,7 @@ public class GigScoreService {
                 .build();
     }
 
-    private String bandFor(double score) {
+    public String bandFor(double score) {
         if (score >= 90) return "Excellent";
         if (score >= 75) return "Strong";
         if (score >= 50) return "Fair";
@@ -180,8 +180,10 @@ public class GigScoreService {
     }
 
     public DataQualityProfile computeDataQuality(UserAggregateMetrics metrics) {
-        int gigs = metrics.jobsCompleted();
-        int days = metrics.activeDays();
+        return computeDataQuality(metrics.jobsCompleted(), metrics.activeDays());
+    }
+
+    public DataQualityProfile computeDataQuality(int gigs, int days) {
         ConfidenceLevel level = ConfidenceLevel.fromVolume(gigs, days);
         String note;
         List<String> flags;
