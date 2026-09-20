@@ -5,9 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.org.gigscore.dto.GigEventRequest;
 import com.org.gigscore.dto.GigSummaryResponse;
@@ -29,35 +34,63 @@ public class GigDataService {
     final UserRepository userRepository;
     final GigScoreService scoreService;
     final UserMetricsService userMetricsService;
-        final ActivityService activityService;
+    final ActivityService activityService;
+    private final TransactionTemplate transactionTemplate;
 
     public GigDataService(
             GigDataRepository gigDataRepository,
             UserRepository userRepository,
             GigScoreService scoreService,
-                        UserMetricsService userMetricsService,
-                        ActivityService activityService) {
+            UserMetricsService userMetricsService,
+            ActivityService activityService,
+            @Autowired(required = false) PlatformTransactionManager transactionManager) {
         this.gigDataRepository = gigDataRepository;
         this.userRepository = userRepository;
         this.scoreService = scoreService;
         this.userMetricsService = userMetricsService;
-                this.activityService = activityService;
+        this.activityService = activityService;
+        this.transactionTemplate = transactionManager != null ? new TransactionTemplate(transactionManager) : null;
     }
 
-        @CacheEvict(value = "scores", key = "#request.userId")
-        @Transactional
-        public UserDashboardResponse addGig(GigEventRequest request){
-
+    @CacheEvict(value = "scores", key = "#request.userId")
+    public UserDashboardResponse addGig(GigEventRequest request) {
         if (request.getUserId() == null) {
             throw new BadRequestException("userId is required");
         }
 
+        int maxAttempts = 5;
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                return executeInTransaction(() -> executeAddGig(request));
+            } catch (DataIntegrityViolationException | ObjectOptimisticLockingFailureException e) {
+                if (attempt == maxAttempts) {
+                    throw e;
+                }
+                try {
+                    Thread.sleep(15L * attempt);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Concurrent gig submission retry interrupted", ie);
+                }
+            }
+        }
+        throw new IllegalStateException("Exhausted retry attempts for gig submission");
+    }
+
+    private UserDashboardResponse executeInTransaction(java.util.function.Supplier<UserDashboardResponse> action) {
+        if (transactionTemplate != null) {
+            return transactionTemplate.execute(status -> action.get());
+        }
+        return action.get();
+    }
+
+    private UserDashboardResponse executeAddGig(GigEventRequest request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-                String normalizedPlatform = Platform.normalize(request.getPlatform());
+        String normalizedPlatform = Platform.normalize(request.getPlatform());
 
-                GigData data = resolveOrCreatePlatformAggregate(user, normalizedPlatform);
+        GigData data = resolveOrCreatePlatformAggregate(user, normalizedPlatform);
 
         data.setTotalEarnings(Money.add(earningsOf(data), request.getAmount()));
         data.setJobsCompleted(data.getJobsCompleted() + 1);
@@ -75,7 +108,6 @@ public class GigDataService {
         scoreService.calculateAndPersistScore(user);
 
         return getUserDashboard(user.getUserId());
-
     }
 
         private GigData resolveOrCreatePlatformAggregate(User user, String platform) {

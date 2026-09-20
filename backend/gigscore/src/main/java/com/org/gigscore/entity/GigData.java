@@ -9,9 +9,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import lombok.Data;
 
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(name = "uk_gig_data_user_platform", columnNames = {"user_id", "platform"}))
 @Data
 public class GigData {
 
@@ -29,4 +33,7 @@ public class GigData {
     private BigDecimal totalEarnings;
     private Integer jobsCompleted;
     private Double avgRating;
+
+    @Version
+    private Long version;
 }
