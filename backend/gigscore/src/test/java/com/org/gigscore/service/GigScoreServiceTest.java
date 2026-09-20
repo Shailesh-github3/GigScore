@@ -171,4 +171,36 @@ class GigScoreServiceTest {
         assertThat(profile.getFlags()).isEmpty();
         assertThat(profile.getNumberOfGigs()).isEqualTo(25);
     }
+
+    @Test
+    void getScoreForUser_whenPersistedScoreExists_returnsPersistedWithoutSaving() {
+        User user = createUser(1L);
+        UserAggregateMetrics metrics = metricsFor(2500, 50, 4.5, 15);
+        when(userMetricsService.calculateAggregates(user)).thenReturn(metrics);
+
+        GigScore persisted = new GigScore();
+        persisted.setUser(user);
+        persisted.setScore(85.5);
+        when(gigScoreRepository.findByUser(user)).thenReturn(Optional.of(persisted));
+
+        var response = gigScoreService.getScoreForUser(user);
+
+        assertThat(response.getScore()).isEqualTo(85.5);
+        verify(gigScoreRepository, never()).save(any(GigScore.class));
+        verify(scoreHistoryRepository, never()).save(any(ScoreHistory.class));
+    }
+
+    @Test
+    void getScoreForUser_whenNoPersistedScore_computesInMemoryWithoutSaving() {
+        User user = createUser(2L);
+        UserAggregateMetrics metrics = metricsFor(5000, 100, 5.0, 30);
+        when(userMetricsService.calculateAggregates(user)).thenReturn(metrics);
+        when(gigScoreRepository.findByUser(user)).thenReturn(Optional.empty());
+
+        var response = gigScoreService.getScoreForUser(user);
+
+        assertThat(response.getScore()).isCloseTo(100.0, within(0.01));
+        verify(gigScoreRepository, never()).save(any(GigScore.class));
+        verify(scoreHistoryRepository, never()).save(any(ScoreHistory.class));
+    }
 }

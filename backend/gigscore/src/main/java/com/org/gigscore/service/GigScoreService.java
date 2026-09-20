@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -67,6 +68,10 @@ public class GigScoreService {
         history.setScoreVersion(SCORE_VERSION);
         scoreHistoryRepository.save(history);
 
+        return buildScoreResponse(user, score, metrics, components);
+    }
+
+    private ScoreResponse buildScoreResponse(User user, double score, UserAggregateMetrics metrics, Map<String, Double> components) {
         DataQualityProfile dataQuality = computeDataQuality(metrics);
 
         return ScoreResponse.builder()
@@ -98,9 +103,17 @@ public class GigScoreService {
                 .mapToDouble(Double::doubleValue).sum());
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "scores", key = "#user.userId")
     public ScoreResponse getScoreForUser(User user) {
-        return calculateAndPersistScore(user);
+        UserAggregateMetrics metrics = userMetricsService.calculateAggregates(user);
+        Map<String, Double> components = computeComponents(metrics);
+
+        Optional<GigScore> persisted = gigScoreRepository.findByUser(user);
+        double score = persisted.map(GigScore::getScore)
+                .orElseGet(() -> roundToTwoDecimals(components.values().stream().mapToDouble(Double::doubleValue).sum()));
+
+        return buildScoreResponse(user, score, metrics, components);
     }
 
     public ScoreConfig getConfig() {
