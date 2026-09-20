@@ -60,7 +60,7 @@ public class GeminiChatService {
 
         String normalizedModel = normalizeModelName(model);
         String endpoint = "https://generativelanguage.googleapis.com/v1beta/models/" + normalizedModel
-            + ":generateContent?key=" + URLEncoder.encode(apiKey, StandardCharsets.UTF_8);
+            + ":generateContent";
 
         HttpRequest request;
         String payloadJson;
@@ -72,6 +72,7 @@ public class GeminiChatService {
 
         request = HttpRequest.newBuilder(URI.create(endpoint))
                 .header("Content-Type", "application/json")
+                .header("x-goog-api-key", apiKey)
                 .timeout(Duration.ofSeconds(15))
                 .POST(HttpRequest.BodyPublishers.ofString(payloadJson))
                 .build();

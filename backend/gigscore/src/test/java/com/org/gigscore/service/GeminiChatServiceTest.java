@@ -59,4 +59,31 @@ class GeminiChatServiceTest {
         assertThatThrownBy(() -> geminiChatService.generateReply(List.of()))
                 .isInstanceOf(BadRequestException.class);
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void apiKeySentInHeaderAndNotInUrl() throws Exception {
+        java.net.http.HttpClient mockHttpClient = org.mockito.Mockito.mock(java.net.http.HttpClient.class);
+        java.net.http.HttpResponse<String> mockResponse = org.mockito.Mockito.mock(java.net.http.HttpResponse.class);
+        org.mockito.Mockito.when(mockResponse.statusCode()).thenReturn(200);
+        org.mockito.Mockito.when(mockResponse.body()).thenReturn("{\"candidates\":[{\"content\":{\"parts\":[{\"text\":\"Hello!\"}]}}]}");
+
+        org.mockito.ArgumentCaptor<java.net.http.HttpRequest> requestCaptor = org.mockito.ArgumentCaptor.forClass(java.net.http.HttpRequest.class);
+        org.mockito.Mockito.doReturn(mockResponse)
+                .when(mockHttpClient)
+                .send(requestCaptor.capture(), org.mockito.ArgumentMatchers.any());
+
+        Field httpClientField = GeminiChatService.class.getDeclaredField("httpClient");
+        httpClientField.setAccessible(true);
+        httpClientField.set(geminiChatService, mockHttpClient);
+
+        setApiKey("my-test-secret-api-key");
+        String reply = geminiChatService.generateReply(List.of(new ChatMessageDTO("user", "hi")));
+
+        java.net.http.HttpRequest captured = requestCaptor.getValue();
+        org.assertj.core.api.Assertions.assertThat(reply).isEqualTo("Hello!");
+        org.assertj.core.api.Assertions.assertThat(captured.headers().firstValue("x-goog-api-key"))
+                .contains("my-test-secret-api-key");
+        org.assertj.core.api.Assertions.assertThat(captured.uri().toString()).doesNotContain("key=");
+    }
 }
