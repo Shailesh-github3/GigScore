@@ -110,48 +110,48 @@ public class GigDataService {
         return getUserDashboard(user.getUserId());
     }
 
-        private GigData resolveOrCreatePlatformAggregate(User user, String platform) {
-                List<GigData> rows = new ArrayList<>(gigDataRepository.findAllByUserAndPlatform(user, platform));
+    private GigData resolveOrCreatePlatformAggregate(User user, String platform) {
+        List<GigData> rows = new ArrayList<>(gigDataRepository.findAllByUserAndPlatform(user, platform));
 
-                if (rows.isEmpty()) {
-                        GigData g = new GigData();
-                        g.setUser(user);
-                        g.setPlatform(platform);
-                        g.setTotalEarnings(Money.ZERO);
-                        g.setJobsCompleted(0);
-                        g.setAvgRating(0.0);
-                        return g;
-                }
-
-                GigData primary = rows.get(0);
-                if (rows.size() == 1) {
-                        return primary;
-                }
-
-                BigDecimal mergedEarnings = Money.ZERO;
-                int mergedJobs = 0;
-                double weightedRatingTotal = 0.0;
-
-                for (GigData row : rows) {
-                        BigDecimal earnings = earningsOf(row);
-                        int jobs = jobsOf(row);
-                        double avgRating = ratingOf(row);
-
-                        mergedEarnings = Money.add(mergedEarnings, earnings);
-                        mergedJobs += jobs;
-                        weightedRatingTotal += avgRating * jobs;
-                }
-
-                primary.setTotalEarnings(mergedEarnings);
-                primary.setJobsCompleted(mergedJobs);
-                primary.setAvgRating(mergedJobs > 0 ? weightedRatingTotal / mergedJobs : 0.0);
-
-                for (int i = 1; i < rows.size(); i++) {
-                        gigDataRepository.delete(rows.get(i));
-                }
-
-                return primary;
+        if (rows.isEmpty()) {
+            GigData g = new GigData();
+            g.setUser(user);
+            g.setPlatform(platform);
+            g.setTotalEarnings(Money.ZERO);
+            g.setJobsCompleted(0);
+            g.setAvgRating(0.0);
+            return g;
         }
+
+        GigData primary = rows.get(0);
+        if (rows.size() == 1) {
+            return primary;
+        }
+
+        BigDecimal mergedEarnings = Money.ZERO;
+        int mergedJobs = 0;
+        double weightedRatingTotal = 0.0;
+
+        for (GigData row : rows) {
+            BigDecimal earnings = earningsOf(row);
+            int jobs = jobsOf(row);
+            double avgRating = ratingOf(row);
+
+            mergedEarnings = Money.add(mergedEarnings, earnings);
+            mergedJobs += jobs;
+            weightedRatingTotal += avgRating * jobs;
+        }
+
+        primary.setTotalEarnings(mergedEarnings);
+        primary.setJobsCompleted(mergedJobs);
+        primary.setAvgRating(mergedJobs > 0 ? weightedRatingTotal / mergedJobs : 0.0);
+
+        for (int i = 1; i < rows.size(); i++) {
+            gigDataRepository.delete(rows.get(i));
+        }
+
+        return primary;
+    }
 
     @Transactional(readOnly = true)
     public UserDashboardResponse getUserDashboard(Long userId) {

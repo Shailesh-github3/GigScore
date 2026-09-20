@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.org.gigscore.dto.ConfidenceLevel;
 import com.org.gigscore.dto.DataQualityProfile;
 import com.org.gigscore.dto.ScoreConfig;
+import com.org.gigscore.dto.ScoreHistoryEntry;
 import com.org.gigscore.dto.ScoreResponse;
 import com.org.gigscore.entity.GigScore;
 import com.org.gigscore.entity.ScoreHistory;
@@ -210,6 +211,17 @@ public class GigScoreService {
                 .flags(flags)
                 .note(note)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ScoreHistoryEntry> getScoreHistory(User user) {
+        return scoreHistoryRepository.findByUserOrderByRecordedAtAsc(user).stream()
+                .map(entry -> ScoreHistoryEntry.builder()
+                        .version(entry.getScoreVersion())
+                        .score(entry.getScore())
+                        .recordedAt(entry.getRecordedAt())
+                        .build())
+                .toList();
     }
 
     private GigScore resolveOrCreateUserGigScore(User user) {

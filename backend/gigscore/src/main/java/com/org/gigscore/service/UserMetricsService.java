@@ -58,10 +58,7 @@ public class UserMetricsService {
     }
 
     private int countDistinctActiveDays(User user) {
-        Set<LocalDate> distinctDays = activityRepository.findByUser(user).stream()
-                .map(activity -> activity.getTimestamp().toLocalDate())
-                .collect(Collectors.toSet());
-        return distinctDays.size();
+        return (int) activityRepository.countDistinctActiveDaysByUser(user);
     }
 
     public record UserAggregateMetrics(BigDecimal totalEarnings, int jobsCompleted, double avgRating, int activeDays) {

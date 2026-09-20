@@ -1,5 +1,6 @@
 package com.org.gigscore.dto;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +17,7 @@ public class LenderWorkerDetail {
     private String band;
     private Map<String, Double> components;
     private List<String> suggestions;
-    private Double totalEarnings;
+    private BigDecimal totalEarnings;
     private Integer jobsCompleted;
     private Integer activeDays;
     private DataQualityProfile dataQuality;

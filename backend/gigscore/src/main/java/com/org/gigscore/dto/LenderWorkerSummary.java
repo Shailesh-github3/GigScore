@@ -1,5 +1,7 @@
 package com.org.gigscore.dto;
 
+import java.math.BigDecimal;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,7 +13,7 @@ public class LenderWorkerSummary {
     private String email;
     private Double score;
     private String band;
-    private Double totalEarnings;
+    private BigDecimal totalEarnings;
     private Integer jobsCompleted;
     private Integer activeDays;
     private DataQualityProfile dataQuality;

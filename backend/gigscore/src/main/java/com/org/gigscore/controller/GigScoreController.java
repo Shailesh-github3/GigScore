@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.org.gigscore.dto.ScoreConfig;
 import com.org.gigscore.dto.ScoreHistoryEntry;
 import com.org.gigscore.dto.ScoreResponse;
-import com.org.gigscore.entity.ScoreHistory;
 import com.org.gigscore.entity.User;
-import com.org.gigscore.repository.ScoreHistoryRepository;
 import com.org.gigscore.repository.UserRepository;
 import com.org.gigscore.service.GigScoreService;
 import com.org.gigscore.exception.ResourceNotFoundException;
@@ -27,13 +25,11 @@ import com.org.gigscore.security.CurrentUserResolver;
 public class GigScoreController {
     final GigScoreService gigScoreService;
     final UserRepository userRepository;
-    final ScoreHistoryRepository scoreHistoryRepository;
     final CurrentUserResolver currentUserResolver;
 
-    public GigScoreController(GigScoreService gigScoreService, UserRepository userRepository, ScoreHistoryRepository scoreHistoryRepository, CurrentUserResolver currentUserResolver) {
+    public GigScoreController(GigScoreService gigScoreService, UserRepository userRepository, CurrentUserResolver currentUserResolver) {
         this.gigScoreService = gigScoreService;
         this.userRepository = userRepository;
-        this.scoreHistoryRepository = scoreHistoryRepository;
         this.currentUserResolver = currentUserResolver;
     }
 
@@ -62,12 +58,6 @@ public class GigScoreController {
         }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        return scoreHistoryRepository.findByUserOrderByRecordedAtAsc(user).stream()
-                .map(entry -> ScoreHistoryEntry.builder()
-                        .version(entry.getScoreVersion())
-                        .score(entry.getScore())
-                        .recordedAt(entry.getRecordedAt())
-                        .build())
-                .toList();
+        return gigScoreService.getScoreHistory(user);
     }
 }
