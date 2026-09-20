@@ -17,7 +17,10 @@ public class JwtUtil {
 
     private final SecretKey key;
 
-    public JwtUtil(@Value("${jwt.secret}") String jwtSecret) {
+    public JwtUtil(@Value("${jwt.secret:}") String jwtSecret) {
+        if (jwtSecret == null || jwtSecret.isBlank() || jwtSecret.getBytes(StandardCharsets.UTF_8).length < 32) {
+            throw new IllegalStateException("JWT_SECRET environment variable is missing or shorter than 32 bytes (256 bits required for HMAC-SHA256)");
+        }
         this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 

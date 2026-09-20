@@ -201,25 +201,25 @@ CREATE DATABASE gigscore;
 
 ### 2. Configure environment variables
 
-Copy `backend/gigscore/.env.example` and fill in your values:
+Copy `.env.example` to `.env` in the repository root and configure your values:
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `DB_USERNAME` | MySQL username | `root` |
-| `DB_PASSWORD` | MySQL password | `your_password` |
-| `JWT_SECRET` | Secret for JWT signing (min 32 chars, required) | `a-very-long-random-string-here` |
-| `CORS_ORIGINS` | Comma-separated frontend origins | `http://localhost:5173,http://127.0.0.1:5173` |
-| `DDL_AUTO` | Hibernate schema mode (`update` for local, `validate` for prod) | `update` |
-| `GEMINI_API_KEY` | Google Gemini API key (optional — AI chat only) | `AIza...` |
-| `GEMINI_MODEL` | Gemini model identifier | `gemini-2.5-flash` |
-| `DEMO_LENDER_EMAIL` | Optional: email for a seeded `LENDER` user (blank = skip) | `demo_lender@example.com` |
-| `DEMO_LENDER_PASSWORD` | Password for the seeded lender account | `change_me_please` |
+```bash
+cp .env.example .env
+```
 
-**Running without a Gemini key:** Only `JWT_SECRET` plus MySQL credentials are required. If `GEMINI_API_KEY` is empty, everything works except the AI chat widget, which replies "AI service is unavailable."
+| Variable | Description | Requirement | Example |
+|----------|-------------|-------------|---------|
+| `DB_USERNAME` | MySQL username | Optional (defaults to `root`) | `root` |
+| `DB_PASSWORD` | MySQL password | **Required** (no weak default) | `<YOUR_SECURE_PASSWORD>` |
+| `JWT_SECRET` | Secret for JWT signing (HMAC-SHA256) | **Required** (minimum 32 characters) | `<32+_CHAR_RANDOM_SECRET>` |
+| `CORS_ORIGINS` | Comma-separated frontend origins | Optional (defaults to localhost) | `http://localhost:5173,http://127.0.0.1:5173` |
+| `DDL_AUTO` | Hibernate schema mode | Optional (defaults to `update`) | `update` |
+| `GEMINI_API_KEY` | Google Gemini API key | Optional (AI chat only) | `AIza...` |
+| `GEMINI_MODEL` | Gemini model identifier | Optional (defaults to `gemini-2.5-flash`) | `gemini-2.5-flash` |
+| `DEMO_LENDER_EMAIL` | Email for a seeded `LENDER` user | Optional (blank = skip) | `demo_lender@example.com` |
+| `DEMO_LENDER_PASSWORD` | Password for seeded lender account | Optional (blank = skip) | `<STRONG_PASSWORD>` |
 
-**Seeding a lender:** If `DEMO_LENDER_EMAIL` and `DEMO_LENDER_PASSWORD` are set, a `LENDER` role account is created at startup. Call `POST /api/v1/users/login` with these credentials to get a JWT that authorizes the `/api/v1/lender/**` endpoints.
-
-Never commit API keys, passwords, database credentials, or JWT secrets.
+> **Security Note:** `DB_PASSWORD` and `JWT_SECRET` have no hardcoded insecure defaults. `JwtUtil` will fail fast at application startup if `JWT_SECRET` is missing or shorter than 32 bytes (256 bits). Never commit `.env` or any real secrets to Git.
 
 ### 3. Run the backend
 
@@ -268,14 +268,14 @@ Backend tests cover: score formula boundaries, rating clamps, cross-user RBAC, s
 ## Docker
 
 ```bash
+# 1. Create .env from template and configure DB_PASSWORD and JWT_SECRET
+cp .env.example .env
+
+# 2. Build and start containers
 docker compose up --build
 ```
 
-Requires: `JWT_SECRET` (set in your shell or a `.env` file). All other variables have safe defaults.
-
-```bash
-JWT_SECRET=your_secret_here docker compose up --build
-```
+Requires: `DB_PASSWORD` and `JWT_SECRET` configured in `.env` (no weak defaults).
 
 Services: `mysql` (port 3306), `backend` (port 8080), `frontend` (port 5173 → nginx port 80).
 
