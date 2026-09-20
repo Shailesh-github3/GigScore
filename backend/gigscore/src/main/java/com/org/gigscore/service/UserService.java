@@ -89,14 +89,6 @@ public class UserService {
             } catch (IllegalArgumentException exception) {
                 authenticated = false;
             }
-
-            // Backward compatibility for legacy plaintext passwords.
-            // On successful legacy auth, upgrade storage to BCrypt.
-            if (!authenticated && rawPassword.equals(storedPassword)) {
-                authenticated = true;
-                user.setPassword(passwordEncoder.encode(rawPassword));
-                userRepository.save(user);
-            }
         }
 
         if (!authenticated) {

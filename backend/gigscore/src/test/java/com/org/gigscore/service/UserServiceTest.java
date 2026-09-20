@@ -140,23 +140,20 @@ class UserServiceTest {
     }
 
     @Test
-    void login_legacyPlaintextPassword_upgradesToBcrypt() {
+    void login_storedPlaintextPassword_doesNotLogInAndThrowsUnauthorized() {
         User user = userWith("legacy@example.com", UserRole.WORKER);
-        user.setPassword("plaintext");
+        user.setPassword("plaintextPassword");
         when(userRepository.findByEmail("legacy@example.com")).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches("plaintext", "plaintext")).thenReturn(false);
-        when(passwordEncoder.encode("plaintext")).thenReturn("new-hash");
-        when(jwtUtil.generateToken("legacy@example.com", "WORKER")).thenReturn("jwt-token");
+        when(passwordEncoder.matches("plaintextPassword", "plaintextPassword")).thenReturn(false);
 
         LoginDTO loginDTO = new LoginDTO();
         loginDTO.setEmail("legacy@example.com");
-        loginDTO.setPassword("plaintext");
+        loginDTO.setPassword("plaintextPassword");
 
-        var response = userService.login(loginDTO).getBody();
+        assertThatThrownBy(() -> userService.login(loginDTO))
+                .isInstanceOf(UnauthorizedException.class)
+                .hasMessageContaining("Invalid credentials");
 
-        assertThat(response.getToken()).isEqualTo("jwt-token");
-        var captor = org.mockito.ArgumentCaptor.forClass(User.class);
-        verify(userRepository).save(captor.capture());
-        assertThat(captor.getValue().getPassword()).isEqualTo("new-hash");
+        verify(userRepository, org.mockito.Mockito.never()).save(any());
     }
 }
