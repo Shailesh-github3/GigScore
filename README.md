@@ -284,31 +284,69 @@ Services: `mysql` (port 3306), `backend` (port 8080), `frontend` (port 5173 → 
 
 ---
 
+## Database Migrations (Flyway)
+
+Database schema versioning is managed via **Flyway** with strict Hibernate validation (`spring.jpa.hibernate.ddl-auto=validate`). Hibernate's dangerous `ddl-auto=update` is disabled in production to guarantee predictable and reproducible schema evolution.
+
+### Migration History
+- **`V1__baseline_schema.sql`** — Portable baseline DDL defining initial tables (`user`, `gig_data`, `gig_score`, `score_history`, `activity`) with portable ANSI `TIMESTAMP(6)` datatypes.
+- **`V2__unique_gig_data.sql`** — Enforces database-level constraint `UNIQUE(user_id, platform)` on `gig_data` and adds optimistic locking column `version BIGINT NOT NULL DEFAULT 0`.
+- **`V3__indexes.sql`** — Adds composite B-tree indexes:
+  - `idx_activity_user_timestamp` on `activity(user_id, timestamp)` (eliminates filesorts on recent activity lookups).
+  - `idx_score_history_user_recorded` on `score_history(user_id, recorded_at)`.
+
+### Running Migrations in Production
+Flyway executes automatically during application startup:
+```bash
+# Migrations run against target datasource on startup
+java -jar gigscore.jar
+```
+To run migrations manually via MySQL CLI prior to starting the application:
+```sql
+USE gigscore;
+
+-- 1. Optimistic locking & Unique constraint
+ALTER TABLE gig_data ADD COLUMN version BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE gig_data ADD CONSTRAINT uk_gig_data_user_platform UNIQUE (user_id, platform);
+
+-- 2. Composite indexes for high-frequency queries
+CREATE INDEX idx_activity_user_timestamp ON activity (user_id, timestamp);
+CREATE INDEX idx_score_history_user_recorded ON score_history (user_id, recorded_at);
+```
+
+---
+
+## Data Integrity & Performance Hardening
+
+1. **Read-Only Score Queries**: `GET /api/v1/score/{userId}` is strictly read-only (`@Transactional(readOnly = true)`). Cache misses query persisted score records or evaluate in-memory without inserting duplicate `score_history` rows or triggering table locks.
+2. **Concurrent Gigs & Optimistic Locking**: Simultaneous gig submissions are protected at the database engine level via `UNIQUE(user_id, platform)` and `@Version`. Collisions are handled via a bounded 5-attempt retry loop using `TransactionTemplate`, ensuring every retry executes inside a fresh, clean database transaction.
+3. **Lazy Associations**: All entity-to-user associations (`@ManyToOne`) use `FetchType.LAZY` with `spring.jpa.open-in-view=false`. Unnecessary eager joins on the `user` table are completely eliminated.
+4. **N+1 Query Elimination & Pagination**: The lender directory endpoint (`/api/v1/lender/workers`) is paginated (`PageRequest`, default 20, max cap 50) and powered by a single JPQL projection with scalar subqueries. Total query count is strictly bounded to $\le 3$ statements ($O(1)$) regardless of page size.
+5. **Exact Financial Precision**: All earnings metrics are represented as `BigDecimal` with exact scale (2 decimal places) across entities, services, and API DTOs to prevent IEEE-754 binary floating-point drift.
+6. **Push Computations to Database**: Active days calculations execute as `COUNT(DISTINCT CAST(a.timestamp AS date))` directly inside the database engine rather than instantiating thousands of JPA entities in JVM memory.
+
+---
+
 ## Known Limitations
 
-- No password reset or email verification flow
-- No CORS origins configured for production (update `CORS_ORIGINS` env var)
-- AI chat has no conversation memory between requests
+- **In-Memory Cache Provider**: Default Spring caching uses an in-memory concurrent map provider. For multi-node cluster deployments, configure a distributed cache like Redis.
+- **In-Memory Rate Limiting**: The sliding-window rate limiter tracks IPs in JVM memory; multi-instance deployments require a centralized store (e.g., Redis rate limiting).
+- **No Email Verification / Password Reset Flow**: User account registration is immediate without email delivery integration.
+- **AI Chat Session Context**: Gemini AI chat assistant is stateless and evaluates suggestions per request without storing long-term chat history.
 
 ---
 
 ## Future Improvements
 
 ### Security
-- Add HTTPS enforcement
-- Harden the demo lender seed for production use
+- Add HTTPS / TLS termination via reverse proxy
+- Add OAuth2 social login (Google, GitHub)
+- Add multi-factor authentication (MFA)
 
-### Performance
-- Redis caching for scores
-- Background score calculation
-- Database connection pooling tuning
-
-### Frontend
-- Replace prop drilling with Context/Zustand
-- Add better error boundaries and loading states
-
-### Backend
-- Add Flyway database migration
+### Performance & Scalability
+- Redis distributed cache for multi-instance deployments
+- Asynchronous score calculation via background message broker (RabbitMQ/Kafka)
+- Database read replicas for lender reporting queries
 
 ---
 
