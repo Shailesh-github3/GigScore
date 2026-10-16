@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+	font-family: "Space Grotesk", "Segoe UI", sans-serif;
+	--color-bg: #f5f6f8;
+	--color-surface: #ffffff;
+	--color-surface-muted: #eef1f5;
+	--color-border: #d9e0e8;
+	--color-text: #111827;
+	--color-text-secondary: #475569;
+	--color-accent: #4f46e5;
+	--color-accent-strong: #4338ca;
+	--color-chart-line-start: #6366f1;
+	--color-chart-line-end: #4f46e5;
+	--color-chart-grid: #cbd5e1;
+	--color-tooltip-bg: rgba(255, 255, 255, 0.97);
+	--color-tooltip-border: rgba(148, 163, 184, 0.45);
+	color: var(--color-text);
+	background: var(--color-bg);
+	color-scheme: light;
+}
+
+.dark {
+	--color-bg: #121212;
+	--color-surface: #1b1b1b;
+	--color-surface-muted: #242424;
+	--color-border: #303030;
+	--color-text: #f3f4f6;
+	--color-text-secondary: #a3a3a3;
+	--color-accent: #818cf8;
+	--color-accent-strong: #6366f1;
+	--color-chart-line-start: #a5b4fc;
+	--color-chart-line-end: #818cf8;
+	--color-chart-grid: #3b3b3b;
+	--color-tooltip-bg: rgba(28, 28, 28, 0.97);
+	--color-tooltip-border: rgba(75, 85, 99, 0.65);
+	color-scheme: dark;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	background: var(--color-bg);
+	color: var(--color-text);
+	transition: background-color 220ms ease, color 220ms ease;
+}
+
+#root {
+	min-height: 100vh;
+}
+
+html:not(.dark) .text-slate-500 {
+	color: #334155;
+}
+
+html:not(.dark) .text-slate-600 {
+	color: #1e293b;
+}
+
+html:not(.dark) .text-slate-700 {
+	color: #0f172a;
+}
+
+html:not(.dark) .text-slate-900 {
+	color: #020617;
+}
