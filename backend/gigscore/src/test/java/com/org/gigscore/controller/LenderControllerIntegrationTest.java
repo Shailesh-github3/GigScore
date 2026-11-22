@@ -42,7 +42,7 @@ class LenderControllerIntegrationTest {
         CreateUserRequest req = new CreateUserRequest();
         req.setName("Worker");
         req.setEmail(email);
-        req.setPassword("pass123");
+        req.setPassword("Password123!");
         String body = mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))

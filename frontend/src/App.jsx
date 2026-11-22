@@ -8,7 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import AddGig from "./pages/AddGig";
 import Score from "./pages/Score";
 import Lenders from "./pages/Lenders";
-import AiChatWidget from "./components/AiChatWidget";
+import { logoutUser } from "./services/userService";
 
 function MainLayout({ currentUser, onLogout, isDarkMode, onSetDarkMode, onUserAuthenticated }) {
   const location = useLocation();
@@ -140,7 +140,12 @@ function App() {
     setCurrentUser(nextUser);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+    } catch (e) {
+      // Continue client cleanup
+    }
     localStorage.removeItem("gigscoreToken");
     localStorage.removeItem("gigscoreUserId");
     localStorage.removeItem("gigscoreUserName");
@@ -166,7 +171,6 @@ function App() {
           }
         />
       </Routes>
-      {currentUser && currentUser.role !== "LENDER" && <AiChatWidget />}
     </BrowserRouter>
   );
 }

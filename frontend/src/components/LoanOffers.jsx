@@ -1,9 +1,12 @@
 import React from "react";
 
-const getLoanDetails = (score) => {
+const getLoanDetails = (score, bands) => {
   const numericScore = Number(score || 0);
+  const excellent = bands?.Excellent ?? 90.0;
+  const strong = bands?.Strong ?? 75.0;
+  const fair = bands?.Fair ?? 50.0;
 
-  if (numericScore >= 80) {
+  if (numericScore >= excellent) {
     return {
       tier: "Excellent",
       amount: "₹5,00,000",
@@ -22,7 +25,7 @@ const getLoanDetails = (score) => {
       offsets: []
     };
   }
-  if (numericScore >= 65) {
+  if (numericScore >= strong) {
     return {
       tier: "Strong",
       amount: "₹2,50,000",
@@ -43,7 +46,7 @@ const getLoanDetails = (score) => {
       ]
     };
   }
-  if (numericScore >= 50) {
+  if (numericScore >= fair) {
     return {
       tier: "Fair",
       amount: "₹1,00,000",
@@ -76,14 +79,14 @@ const getLoanDetails = (score) => {
     textTone: "text-rose-700 dark:text-rose-400",
     reasons: [],
     offsets: [
-      "Insufficient activity history (< 50 score)",
+      `Score below ${fair} threshold`,
       "Log more gigs and maintain high ratings to qualify"
     ]
   };
 };
 
-export default function LoanOffers({ score }) {
-  const details = getLoanDetails(score);
+export default function LoanOffers({ score, bands }) {
+  const details = getLoanDetails(score, bands);
 
   return (
     <div className={`border p-6 md:p-8 transition-colors duration-300 ${details.bgTone} ${details.borderTone}`}>

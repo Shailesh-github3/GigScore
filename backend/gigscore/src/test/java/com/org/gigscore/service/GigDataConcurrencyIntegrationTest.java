@@ -45,7 +45,7 @@ class GigDataConcurrencyIntegrationTest {
         CreateUserRequest userReq = new CreateUserRequest();
         userReq.setName("Concurrency Tester");
         userReq.setEmail("concurrency-test@example.com");
-        userReq.setPassword("password123");
+        userReq.setPassword("Password123!");
         var authResponse = userService.createUser(userReq).getBody();
         Long userId = authResponse.getUserId();
 

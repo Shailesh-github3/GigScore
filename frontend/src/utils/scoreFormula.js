@@ -61,24 +61,32 @@ export const calculateTotalScore = (contributions) => {
   return roundToTwo(clamp(total, 0, MAX_SCORE));
 };
 
-export const getScoreBand = (score) => {
-  if (score >= 80.0) return "EXCELLENT";
-  if (score >= 65.0) return "STRONG";
-  if (score >= 50.0) return "FAIR";
-  return "NEEDS_IMPROVEMENT";
+export const getScoreBand = (score, bands) => {
+  const excellent = bands?.Excellent ?? 90.0;
+  const strong = bands?.Strong ?? 75.0;
+  const fair = bands?.Fair ?? 50.0;
+
+  if (score >= excellent) return "Excellent";
+  if (score >= strong) return "Strong";
+  if (score >= fair) return "Fair";
+  return "Needs Improvement";
 };
 
-export const getRiskClassification = (score) => {
-  if (score >= 80.0) {
-    return { band: "EXCELLENT", label: "Excellent", risk: "Very Low Risk", color: "emerald" };
+export const getRiskClassification = (score, bands) => {
+  const excellent = bands?.Excellent ?? 90.0;
+  const strong = bands?.Strong ?? 75.0;
+  const fair = bands?.Fair ?? 50.0;
+
+  if (score >= excellent) {
+    return { band: "Excellent", label: "Excellent", risk: "Very Low Risk", color: "emerald" };
   }
-  if (score >= 65.0) {
-    return { band: "STRONG", label: "Strong", risk: "Low Risk", color: "blue" };
+  if (score >= strong) {
+    return { band: "Strong", label: "Strong", risk: "Low Risk", color: "blue" };
   }
-  if (score >= 50.0) {
-    return { band: "FAIR", label: "Fair", risk: "Moderate Risk", color: "amber" };
+  if (score >= fair) {
+    return { band: "Fair", label: "Fair", risk: "Moderate Risk", color: "amber" };
   }
-  return { band: "NEEDS_IMPROVEMENT", label: "Needs Improvement", risk: "High Risk", color: "rose" };
+  return { band: "Needs Improvement", label: "Needs Improvement", risk: "High Risk", color: "rose" };
 };
 
 export const SCORE_CONFIG = {
@@ -87,6 +95,12 @@ export const SCORE_CONFIG = {
   jobsTarget: JOBS_TARGET,
   activeDaysTarget: ACTIVE_DAYS_TARGET,
   ratingMax: RATING_MAX,
+  bands: {
+    Excellent: 90.0,
+    Strong: 75.0,
+    Fair: 50.0,
+    "Needs Improvement": 0.0,
+  },
   weights: {
     earnings: WEIGHT_EARNINGS,
     jobs: WEIGHT_JOBS,

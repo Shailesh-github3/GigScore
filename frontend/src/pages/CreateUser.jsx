@@ -14,6 +14,15 @@ function CreateUser({ onUserAuthenticated }) {
     event.preventDefault();
     setStatus({ type: "", message: "" });
 
+    const passwordRegex = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setStatus({
+        type: "error",
+        message: "Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
+      });
+      return;
+    }
+
     try {
       const dashboard = await createUser({
         name,
@@ -88,9 +97,13 @@ function CreateUser({ onUserAuthenticated }) {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               required
-              minLength={6}
+              minLength={8}
+              placeholder="e.g. Pass@1234"
               className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 outline-none ring-indigo-200 transition focus:ring dark:text-slate-100"
             />
+            <p className="mt-1 text-xs text-slate-500">
+              At least 8 characters with uppercase, lowercase, number, and special character.
+            </p>
           </div>
 
           <button

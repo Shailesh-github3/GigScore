@@ -46,7 +46,7 @@ class ScorePlatformControllerIntegrationTest {
 
     @Test
     void platformsEndpoint_returnsAllowedValues() throws Exception {
-        RegisteredUser user = register("alice-platforms@example.com", "pass123");
+        RegisteredUser user = register("alice-platforms@example.com", "Password123!");
         mockMvc.perform(get("/api/v1/platforms")
                         .header("Authorization", "Bearer " + user.token()))
                 .andExpect(status().isOk())
@@ -57,7 +57,7 @@ class ScorePlatformControllerIntegrationTest {
 
     @Test
     void scoreConfigEndpoint_returnsFormulaConstants() throws Exception {
-        RegisteredUser user = register("alice-config@example.com", "pass123");
+        RegisteredUser user = register("alice-config@example.com", "Password123!");
         mockMvc.perform(get("/api/v1/score/config")
                         .header("Authorization", "Bearer " + user.token()))
                 .andExpect(status().isOk())
@@ -70,7 +70,7 @@ class ScorePlatformControllerIntegrationTest {
 
     @Test
     void scoreAndHistory_populatedAfterGigEvent() throws Exception {
-        RegisteredUser user = register("alice-score@example.com", "pass123");
+        RegisteredUser user = register("alice-score@example.com", "Password123!");
 
         mockMvc.perform(post("/api/v1/gigs")
                         .header("Authorization", "Bearer " + user.token())
@@ -100,7 +100,7 @@ class ScorePlatformControllerIntegrationTest {
 
     @Test
     void addGig_unknownPlatform_returnsBadRequest() throws Exception {
-        RegisteredUser user = register("alice-unknown@example.com", "pass123");
+        RegisteredUser user = register("alice-unknown@example.com", "Password123!");
 
         mockMvc.perform(post("/api/v1/gigs")
                         .header("Authorization", "Bearer " + user.token())

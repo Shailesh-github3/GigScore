@@ -40,6 +40,10 @@ public class GigScoreService {
     static final double EXP_RATING = 1.40;
     static final double EXP_ACTIVE_DAYS = 1.00;
 
+    public static final double BAND_EXCELLENT_MIN = 90.0;
+    public static final double BAND_STRONG_MIN = 75.0;
+    public static final double BAND_FAIR_MIN = 50.0;
+
     static final int SCORE_VERSION = 1;
 
     final GigScoreRepository gigScoreRepository;
@@ -118,6 +122,12 @@ public class GigScoreService {
     }
 
     public ScoreConfig getConfig() {
+        Map<String, Double> bands = new LinkedHashMap<>();
+        bands.put("Excellent", BAND_EXCELLENT_MIN);
+        bands.put("Strong", BAND_STRONG_MIN);
+        bands.put("Fair", BAND_FAIR_MIN);
+        bands.put("Needs Improvement", 0.0);
+
         return ScoreConfig.builder()
                 .version(SCORE_VERSION)
                 .maxScore(MAX_SCORE)
@@ -125,6 +135,7 @@ public class GigScoreService {
                 .jobsTarget(JOBS_TARGET)
                 .ratingMax(RATING_MAX)
                 .activeDaysTarget(ACTIVE_DAYS_TARGET)
+                .bands(bands)
                 .weights(ScoreConfig.WeightSet.builder()
                         .earnings(WEIGHT_EARNINGS)
                         .jobs(WEIGHT_JOBS)
@@ -141,9 +152,9 @@ public class GigScoreService {
     }
 
     public String bandFor(double score) {
-        if (score >= 90) return "Excellent";
-        if (score >= 75) return "Strong";
-        if (score >= 50) return "Fair";
+        if (score >= BAND_EXCELLENT_MIN) return "Excellent";
+        if (score >= BAND_STRONG_MIN) return "Strong";
+        if (score >= BAND_FAIR_MIN) return "Fair";
         return "Needs Improvement";
     }
 

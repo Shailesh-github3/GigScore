@@ -31,12 +31,13 @@ class UserControllerIntegrationTest {
         CreateUserRequest createRequest = new CreateUserRequest();
         createRequest.setName("Alice");
         createRequest.setEmail("alice@example.com");
-        createRequest.setPassword("password123");
+        createRequest.setPassword("Password123!");
 
         String registerResponse = mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createRequest)))
                 .andExpect(status().isOk())
+                .andExpect(cookie().exists("gigscoreToken"))
                 .andExpect(jsonPath("$.userId").isNumber())
                 .andExpect(jsonPath("$.name").value("Alice"))
                 .andExpect(jsonPath("$.email").value("alice@example.com"))
@@ -45,12 +46,13 @@ class UserControllerIntegrationTest {
 
         LoginDTO loginDTO = new LoginDTO();
         loginDTO.setEmail("alice@example.com");
-        loginDTO.setPassword("password123");
+        loginDTO.setPassword("Password123!");
 
         mockMvc.perform(post("/api/v1/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginDTO)))
                 .andExpect(status().isOk())
+                .andExpect(cookie().exists("gigscoreToken"))
                 .andExpect(jsonPath("$.userId").isNumber())
                 .andExpect(jsonPath("$.token").isNotEmpty())
                 .andExpect(jsonPath("$.email").value("alice@example.com"));
@@ -89,7 +91,7 @@ class UserControllerIntegrationTest {
         CreateUserRequest createRequest = new CreateUserRequest();
         createRequest.setName("Bob");
         createRequest.setEmail("bob@example.com");
-        createRequest.setPassword("password123");
+        createRequest.setPassword("Password123!");
 
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)

@@ -50,7 +50,7 @@ class ScoreReadOnlyIntegrationTest {
         CreateUserRequest req = new CreateUserRequest();
         req.setName("Test Worker");
         req.setEmail(email);
-        req.setPassword("password123");
+        req.setPassword("Password123!");
 
         String body = mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)

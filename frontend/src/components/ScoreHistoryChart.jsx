@@ -8,27 +8,14 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { calculateScoreContributions, calculateTotalScore } from "../utils/scoreFormula";
 
-const scoreFromAggregates = (totalEarnings, jobsCompleted, avgRating, activeDays) => {
-  const contributions = calculateScoreContributions({ totalEarnings, jobsCompleted, avgRating, activeDays });
-  return calculateTotalScore(contributions);
-};
+const buildScoreHistory = (history = [], currentScore = 0) => {
+  const safeCurrentScore = Number(currentScore || 0);
 
-const buildScoreHistory = (activities = [], currentScore = 0) => {
-  const sorted = [...activities].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
-  if (!sorted.length) {
-    const safeCurrentScore = Number(currentScore || 0);
+  if (!Array.isArray(history) || history.length === 0) {
     return [
       {
         interval: "T0",
-        score: 0,
-        timeLabel: "Start",
-        isLatest: false,
-      },
-      {
-        interval: "T1",
         score: safeCurrentScore,
         timeLabel: "Current",
         isLatest: true,
@@ -36,30 +23,16 @@ const buildScoreHistory = (activities = [], currentScore = 0) => {
     ];
   }
 
-  let totalEarnings = 0;
-  let jobsCompleted = 0;
-  let ratingSum = 0;
-  const activeDays = new Set();
+  // Sort chronologically by recordedAt timestamp
+  const sorted = [...history].sort(
+    (a, b) => new Date(a.recordedAt || 0) - new Date(b.recordedAt || 0)
+  );
 
-  const points = sorted.map((activity, index) => {
-    const amount = Number(activity.amount || 0);
-    const rating = Number(activity.rating || 0);
-    const date = activity.timestamp ? new Date(activity.timestamp) : null;
-
-    totalEarnings += amount;
-    jobsCompleted += 1;
-    ratingSum += rating;
-
-    if (date && !Number.isNaN(date.valueOf())) {
-      activeDays.add(date.toISOString().slice(0, 10));
-    }
-
-    const avgRating = jobsCompleted > 0 ? ratingSum / jobsCompleted : 0;
-    const score = scoreFromAggregates(totalEarnings, jobsCompleted, avgRating, activeDays.size);
-
+  const points = sorted.map((entry, index) => {
+    const date = entry.recordedAt ? new Date(entry.recordedAt) : null;
     return {
       interval: `T${index + 1}`,
-      score: Number(score.toFixed(2)),
+      score: Number(Number(entry.score || 0).toFixed(1)),
       timeLabel:
         date && !Number.isNaN(date.valueOf())
           ? date.toLocaleString([], {
@@ -73,24 +46,11 @@ const buildScoreHistory = (activities = [], currentScore = 0) => {
     };
   });
 
-  if (points.length === 1) {
-    const firstScore = Number(points[0].score || 0);
-    return [
-      {
-        interval: "T0",
-        score: Math.max(firstScore - 5, 0),
-        timeLabel: "Start",
-        isLatest: false,
-      },
-      points[0],
-    ];
-  }
-
   return points;
 };
 
-function ScoreHistoryChart({ activities, score }) {
-  const chartData = buildScoreHistory(activities, score);
+function ScoreHistoryChart({ history, score }) {
+  const chartData = buildScoreHistory(history, score);
   const isDarkMode =
     typeof document !== "undefined" && document.documentElement.classList.contains("dark");
 
@@ -111,10 +71,10 @@ function ScoreHistoryChart({ activities, score }) {
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Growth Trajectory</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Progression across time intervals</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Authoritative Score Progression (Database Audit Log)</p>
         </div>
         <p className="rounded-full border border-slate-300 bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
-          Latest: {chartData[chartData.length - 1].score}
+          Latest: {chartData[chartData.length - 1]?.score ?? score}
         </p>
       </div>
 
@@ -152,7 +112,7 @@ function ScoreHistoryChart({ activities, score }) {
             <Line
               type="monotone"
               dataKey="score"
-              name="GigScore"
+              name="Authoritative GigScore"
               stroke="url(#scoreStroke)"
               strokeWidth={3.5}
               animationDuration={900}

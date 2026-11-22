@@ -7,6 +7,7 @@ const baseURL = rawBaseUrl !== undefined
 
 const httpClient = axios.create({
   baseURL,
+  withCredentials: true, // Enables HttpOnly cookies to be sent with requests
 });
 
 httpClient.interceptors.request.use((config) => {
@@ -26,7 +27,10 @@ httpClient.interceptors.response.use(
     if (error.response) {
       if (error.response.status === 401) {
         localStorage.removeItem("gigscoreToken");
-        localStorage.removeItem("gigscoreUser");
+        localStorage.removeItem("gigscoreUserId");
+        localStorage.removeItem("gigscoreUserName");
+        localStorage.removeItem("gigscoreUserEmail");
+        localStorage.removeItem("gigscoreUserRole");
         if (
           typeof window !== "undefined" &&
           window.location.pathname !== "/login" &&

@@ -14,3 +14,12 @@ export async function loginUser(payload) {
   const response = await httpClient.post("/api/v1/users/login", payload);
   return response.data;
 }
+
+export async function logoutUser() {
+  try {
+    const response = await httpClient.post("/api/v1/users/logout");
+    return response.data;
+  } catch (error) {
+    return null;
+  }
+}

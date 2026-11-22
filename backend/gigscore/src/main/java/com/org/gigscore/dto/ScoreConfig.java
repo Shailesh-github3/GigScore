@@ -12,6 +12,7 @@ public class ScoreConfig {
     private Double jobsTarget;
     private Double ratingMax;
     private Double activeDaysTarget;
+    private java.util.Map<String, Double> bands;
     private WeightSet weights;
     private ExponentSet exponents;
 

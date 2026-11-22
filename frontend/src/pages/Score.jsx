@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { getScore } from "../services/scoreService";
+import { getScore, getScoreHistory, getScoreConfig } from "../services/scoreService";
 import { getUserDashboard } from "../services/userService";
-import { getRecentActivities } from "../services/activityService";
 import { calculateScoreContributions, getRiskClassification } from "../utils/scoreFormula";
 import LoanOffers from "../components/LoanOffers";
 import AiChatWidget from "../components/AiChatWidget";
@@ -14,7 +13,8 @@ const formatPoints = (value) => Number(value || 0).toFixed(1);
 
 function Score({ userId }) {
   const [scoreData, setScoreData] = useState(null);
-  const [activities, setActivities] = useState([]);
+  const [scoreHistory, setScoreHistory] = useState([]);
+  const [scoreConfig, setScoreConfig] = useState(null);
   const [metrics, setMetrics] = useState({
     totalEarnings: 0,
     jobsCompleted: 0,
@@ -27,18 +27,20 @@ function Score({ userId }) {
     const fetchScore = async () => {
       setStatus({ loading: true, error: "" });
       try {
-        const [scoreResponse, dashboardResponse, activityResponse] = await Promise.all([
+        const [scoreResponse, dashboardResponse, historyResponse, configResponse] = await Promise.all([
           getScore(userId),
           getUserDashboard(userId),
-          getRecentActivities(userId),
+          getScoreHistory(userId).catch(() => []),
+          getScoreConfig().catch(() => null),
         ]);
 
-        const activitiesList = Array.isArray(activityResponse) ? activityResponse : [];
-        setActivities(activitiesList);
+        const historyList = Array.isArray(historyResponse) ? historyResponse : [];
+        setScoreHistory(historyList);
+        setScoreConfig(configResponse);
 
         const nextMetrics = {
           totalEarnings: Number(dashboardResponse.totalEarnings || 0),
-          jobsCompleted: Number(dashboardResponse.totalGigs || dashboardResponse.jobsCompleted || activitiesList.length || 0),
+          jobsCompleted: Number(dashboardResponse.totalGigs || dashboardResponse.jobsCompleted || 0),
           activeDays: Number(dashboardResponse.activeDays || 0),
           avgRating: Number(dashboardResponse.avgRating || 0),
         };
@@ -61,7 +63,8 @@ function Score({ userId }) {
   if (status.error) return <div className="p-12 text-center text-red-500">{status.error}</div>;
 
   const currentScore = Number(scoreData?.score ?? 0);
-  const riskProfile = getRiskClassification(currentScore);
+  const bands = scoreConfig?.bands;
+  const riskProfile = getRiskClassification(currentScore, bands);
 
   // Components from authoritative backend or fallback to formula
   const calculatedComponents = calculateScoreContributions(metrics);
@@ -92,7 +95,7 @@ function Score({ userId }) {
           
           <div className="mt-6 flex items-center justify-center gap-3">
             <span className="inline-block rounded-full bg-slate-100 px-4 py-1.5 text-sm font-bold text-slate-800 dark:bg-slate-800 dark:text-slate-200">
-              Tier: {scoreData?.band || riskProfile.band}
+              Tier: {scoreData?.band || riskProfile.label}
             </span>
             <span className="inline-block rounded-full bg-emerald-100 px-4 py-1.5 text-sm font-bold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
               Risk: {riskProfile.risk}
@@ -138,13 +141,13 @@ function Score({ userId }) {
 
             <div className="flex flex-col">
               <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-6 px-2">Decision Traceability</h3>
-              <LoanOffers score={currentScore} />
+              <LoanOffers score={currentScore} bands={bands} />
             </div>
           </div>
 
-          {/* Score History Trajectory */}
+          {/* Authoritative Score History Trajectory from backend audit log */}
           <div className="mt-8">
-            <ScoreHistoryChart activities={activities} score={currentScore} />
+            <ScoreHistoryChart history={scoreHistory} score={currentScore} />
           </div>
         </div>
       </section>

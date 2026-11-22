@@ -55,7 +55,7 @@ class UserServiceTest {
         CreateUserRequest request = new CreateUserRequest();
         request.setName("Test");
         request.setEmail("DUP@example.com");
-        request.setPassword("password123");
+        request.setPassword("Password123!");
 
         assertThatThrownBy(() -> userService.createUser(request))
                 .isInstanceOf(DuplicateResourceException.class)
@@ -65,7 +65,7 @@ class UserServiceTest {
     @Test
     void createUser_assignsWorkerRoleAndReturnsToken() {
         when(userRepository.findByEmail("new@example.com")).thenReturn(Optional.empty());
-        when(passwordEncoder.encode("password123")).thenReturn("hashed");
+        when(passwordEncoder.encode("Password123!")).thenReturn("hashed");
         when(userRepository.save(any(User.class))).thenAnswer(inv -> {
             User user = inv.getArgument(0);
             user.setUserId(1L);
@@ -76,7 +76,7 @@ class UserServiceTest {
         CreateUserRequest request = new CreateUserRequest();
         request.setName("New User");
         request.setEmail("new@example.com");
-        request.setPassword("password123");
+        request.setPassword("Password123!");
 
         var response = userService.createUser(request).getBody();
 
@@ -95,12 +95,12 @@ class UserServiceTest {
         User user = userWith("lender@example.com", UserRole.LENDER);
         user.setPassword("hashed");
         when(userRepository.findByEmail("lender@example.com")).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches("password123", "hashed")).thenReturn(true);
+        when(passwordEncoder.matches("Password123!", "hashed")).thenReturn(true);
         when(jwtUtil.generateToken("lender@example.com", "LENDER")).thenReturn("jwt-token");
 
         LoginDTO loginDTO = new LoginDTO();
         loginDTO.setEmail("lender@example.com");
-        loginDTO.setPassword("password123");
+        loginDTO.setPassword("Password123!");
 
         var response = userService.login(loginDTO).getBody();
 

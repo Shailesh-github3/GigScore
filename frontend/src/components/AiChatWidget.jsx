@@ -9,11 +9,13 @@ const CATEGORIES = [
   { id: "earnings_analysis", label: "💵 Earnings analysis" },
 ];
 
-function AiChatWidget({ userId = 1 }) {
+function AiChatWidget({ userId }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [response, setResponse] = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);
+
+  const effectiveUserId = userId || localStorage.getItem("gigscoreUserId");
 
   const handleCategoryClick = async (category) => {
     setActiveCategory(category);
@@ -22,7 +24,7 @@ function AiChatWidget({ userId = 1 }) {
     setResponse(null);
 
     try {
-      const data = await analyzeCoach(userId, category.id);
+      const data = await analyzeCoach(effectiveUserId, category.id);
       setResponse(data);
     } catch (err) {
       setError("Failed to fetch AI insights. Please try again.");

@@ -46,8 +46,8 @@ class GigDataControllerIntegrationTest {
 
     @Test
     void userA_cannotAccess_userBData() throws Exception {
-        RegisteredUser alice = register("Alice", "alice2@example.com", "pass123");
-        RegisteredUser bob = register("Bob", "bob2@example.com", "pass123");
+        RegisteredUser alice = register("Alice", "alice2@example.com", "Password123!");
+        RegisteredUser bob = register("Bob", "bob2@example.com", "Password123!");
 
         mockMvc.perform(get("/api/v1/users/" + bob.userId())
                         .header("Authorization", "Bearer " + alice.token()))
@@ -56,7 +56,7 @@ class GigDataControllerIntegrationTest {
 
     @Test
     void addGig_withInvalidAmountOrRating_returnsBadRequest() throws Exception {
-        String token = register("Alice", "alice-invalid@example.com", "pass123").token();
+        String token = register("Alice", "alice-invalid@example.com", "Password123!").token();
 
         String invalidAmountBody = "{\"platform\":\"Upwork\",\"amount\":0.0,\"rating\":4.5}";
         mockMvc.perform(post("/api/v1/gigs")
