@@ -46,7 +46,9 @@ class SchemaValidationIntegrationTest {
                         "gig_data",
                         "gig_score",
                         "score_history",
-                        "activity"
+                        "activity",
+                        "user_goal",
+                        "ai_interaction"
                 );
     }
 }

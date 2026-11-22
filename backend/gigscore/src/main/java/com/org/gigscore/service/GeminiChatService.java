@@ -111,6 +111,82 @@ public class GeminiChatService {
         }
     }
 
+    public String generateStructuredContent(String prompt, String systemInstruction) {
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new GeminiApiException("AI service is unavailable.");
+        }
+
+        Map<String, Object> requestBody = new java.util.HashMap<>();
+
+        if (systemInstruction != null && !systemInstruction.isBlank()) {
+            Map<String, Object> systemInst = Map.of("parts", List.of(Map.of("text", systemInstruction)));
+            requestBody.put("systemInstruction", systemInst);
+        }
+
+        Map<String, Object> content = Map.of(
+                "role", "user",
+                "parts", List.of(Map.of("text", prompt != null ? prompt : ""))
+        );
+        requestBody.put("contents", List.of(content));
+
+        Map<String, Object> generationConfig = Map.of(
+                "responseMimeType", "application/json",
+                "temperature", 0.2
+        );
+        requestBody.put("generationConfig", generationConfig);
+
+        String normalizedModel = normalizeModelName(model);
+        String endpoint = "https://generativelanguage.googleapis.com/v1beta/models/" + normalizedModel
+                + ":generateContent";
+
+        String payloadJson;
+        try {
+            payloadJson = objectMapper.writeValueAsString(requestBody);
+        } catch (JsonProcessingException exception) {
+            throw new GeminiApiException("Unable to serialize Gemini request.", exception);
+        }
+
+        HttpRequest request = HttpRequest.newBuilder(URI.create(endpoint))
+                .header("Content-Type", "application/json")
+                .header("x-goog-api-key", apiKey)
+                .timeout(Duration.ofSeconds(15))
+                .POST(HttpRequest.BodyPublishers.ofString(payloadJson))
+                .build();
+
+        HttpResponse<String> response;
+        try {
+            response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new GeminiApiException("AI service is unavailable.");
+        } catch (java.io.IOException exception) {
+            throw new GeminiApiException("AI service is unavailable.");
+        }
+
+        if (response.statusCode() >= 400) {
+            throw new GeminiApiException("AI service is unavailable.");
+        }
+
+        try {
+            JsonNode root = objectMapper.readTree(response.body());
+            String text = root.path("candidates")
+                    .path(0)
+                    .path("content")
+                    .path("parts")
+                    .path(0)
+                    .path("text")
+                    .asText("");
+
+            if (text.isBlank()) {
+                throw new GeminiApiException("AI service is unavailable.");
+            }
+
+            return text;
+        } catch (JsonProcessingException exception) {
+            throw new GeminiApiException("AI service is unavailable.");
+        }
+    }
+
     private String toGeminiRole(String role) {
         if (role == null) {
             return "user";

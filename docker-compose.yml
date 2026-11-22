@@ -26,7 +26,7 @@ services:
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.5-flash}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
-      DDL_AUTO: ${DDL_AUTO:-update}
+      DDL_AUTO: ${DDL_AUTO:-validate}
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/gigscore
     ports:
       - "8080:8080"

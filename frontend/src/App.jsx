@@ -7,6 +7,7 @@ import CreateUser from "./pages/CreateUser";
 import Dashboard from "./pages/Dashboard";
 import AddGig from "./pages/AddGig";
 import Score from "./pages/Score";
+import Lenders from "./pages/Lenders";
 import AiChatWidget from "./components/AiChatWidget";
 
 function MainLayout({ currentUser, onLogout, isDarkMode, onSetDarkMode, onUserAuthenticated }) {
@@ -26,6 +27,8 @@ function MainLayout({ currentUser, onLogout, isDarkMode, onSetDarkMode, onUserAu
     return <Navigate to="/login" replace />;
   }
 
+  const isLender = currentUser.role === "LENDER";
+
   return (
     <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] transition-colors duration-200">
       <Navbar
@@ -35,13 +38,31 @@ function MainLayout({ currentUser, onLogout, isDarkMode, onSetDarkMode, onUserAu
         onSetDarkMode={onSetDarkMode}
       />
       <div className="flex min-h-[calc(100vh-4rem)] items-stretch">
-        <Sidebar />
+        <Sidebar userRole={currentUser.role} />
         <main className="w-full p-4 md:p-6 lg:p-8">
           <Routes>
-            <Route path="/dashboard" element={<Dashboard userId={currentUser.userId} />} />
-            <Route path="/add-gig" element={<AddGig userId={currentUser.userId} />} />
-            <Route path="/score" element={<Score userId={currentUser.userId} />} />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            {/* Worker Routes */}
+            <Route
+              path="/dashboard"
+              element={!isLender ? <Dashboard userId={currentUser.userId} /> : <Navigate to="/lenders" replace />}
+            />
+            <Route
+              path="/add-gig"
+              element={!isLender ? <AddGig userId={currentUser.userId} /> : <Navigate to="/lenders" replace />}
+            />
+            <Route
+              path="/score"
+              element={!isLender ? <Score userId={currentUser.userId} /> : <Navigate to="/lenders" replace />}
+            />
+
+            {/* Lender Routes */}
+            <Route
+              path="/lenders"
+              element={isLender ? <Lenders /> : <Navigate to="/dashboard" replace />}
+            />
+
+            {/* Catch-all */}
+            <Route path="*" element={<Navigate to={isLender ? "/lenders" : "/dashboard"} replace />} />
           </Routes>
         </main>
       </div>
@@ -54,12 +75,14 @@ function App() {
     const storedUserId = localStorage.getItem("gigscoreUserId");
     const storedUserName = localStorage.getItem("gigscoreUserName") || "";
     const storedUserEmail = localStorage.getItem("gigscoreUserEmail") || "";
+    const storedUserRole = localStorage.getItem("gigscoreUserRole") || "WORKER";
 
     return storedUserId
       ? {
           userId: Number(storedUserId),
           name: storedUserName,
           email: storedUserEmail,
+          role: storedUserRole,
         }
       : null;
   });
@@ -103,6 +126,7 @@ function App() {
       userId: userDashboard.userId,
       name: userDashboard.name,
       email: userDashboard.email,
+      role: userDashboard.role || "WORKER",
     };
 
     if (userDashboard.token) {
@@ -112,6 +136,7 @@ function App() {
     localStorage.setItem("gigscoreUserId", String(nextUser.userId));
     localStorage.setItem("gigscoreUserName", nextUser.name || "");
     localStorage.setItem("gigscoreUserEmail", nextUser.email || "");
+    localStorage.setItem("gigscoreUserRole", nextUser.role);
     setCurrentUser(nextUser);
   };
 
@@ -120,6 +145,7 @@ function App() {
     localStorage.removeItem("gigscoreUserId");
     localStorage.removeItem("gigscoreUserName");
     localStorage.removeItem("gigscoreUserEmail");
+    localStorage.removeItem("gigscoreUserRole");
     setCurrentUser(null);
   };
 
@@ -140,7 +166,7 @@ function App() {
           }
         />
       </Routes>
-      <AiChatWidget />
+      {currentUser && currentUser.role !== "LENDER" && <AiChatWidget />}
     </BrowserRouter>
   );
 }

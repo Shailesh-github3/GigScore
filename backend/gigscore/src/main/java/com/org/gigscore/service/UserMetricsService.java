@@ -41,8 +41,13 @@ public class UserMetricsService {
 
         double avgRating = totalJobs > 0 ? totalRating / totalJobs : 0;
         int activeDays = countDistinctActiveDays(user);
+        int platformsUsed = (int) gigDataList.stream()
+                .map(GigData::getPlatform)
+                .filter(java.util.Objects::nonNull)
+                .distinct()
+                .count();
 
-        return new UserAggregateMetrics(totalEarnings, totalJobs, avgRating, activeDays);
+        return new UserAggregateMetrics(totalEarnings, totalJobs, avgRating, activeDays, platformsUsed);
     }
 
     private BigDecimal earningsOf(GigData data) {
@@ -61,6 +66,9 @@ public class UserMetricsService {
         return (int) activityRepository.countDistinctActiveDaysByUser(user);
     }
 
-    public record UserAggregateMetrics(BigDecimal totalEarnings, int jobsCompleted, double avgRating, int activeDays) {
+    public record UserAggregateMetrics(BigDecimal totalEarnings, int jobsCompleted, double avgRating, int activeDays, int platformsUsed) {
+        public UserAggregateMetrics(BigDecimal totalEarnings, int jobsCompleted, double avgRating, int activeDays) {
+            this(totalEarnings, jobsCompleted, avgRating, activeDays, 0);
+        }
     }
 }

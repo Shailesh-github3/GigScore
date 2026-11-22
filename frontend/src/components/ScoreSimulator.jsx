@@ -4,9 +4,9 @@ import { calculateScoreContributions, calculateTotalScore, SCORE_CONFIG } from "
 export default function ScoreSimulator({ initialMetrics }) {
   const [metrics, setMetrics] = useState({
     totalEarnings: Math.min(initialMetrics?.totalEarnings || 2500, 10000),
+    jobsCompleted: Math.min(initialMetrics?.jobsCompleted || 50, 200),
+    avgRating: initialMetrics?.avgRating || 4.5,
     activeDays: Math.min(initialMetrics?.activeDays || 15, 30),
-    avgRating: initialMetrics?.avgRating || 4.0,
-    platformsUsed: initialMetrics?.platformsUsed || 1,
   });
 
   const [simulatedScore, setSimulatedScore] = useState(0);
@@ -31,21 +31,22 @@ export default function ScoreSimulator({ initialMetrics }) {
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Score Simulator</h2>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            Adjust your metrics to see how they impact your final GigScore and credit eligibility.
+            Adjust your metrics to see how they impact your final GigScore (0–100 scale) and credit eligibility.
           </p>
         </div>
         <div className="mt-4 md:mt-0 flex items-baseline gap-2 bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-lg">
           <span className="text-sm font-semibold uppercase tracking-wider text-slate-500">Projected Score</span>
           <span className="text-3xl font-black text-slate-900 dark:text-slate-100">{simulatedScore}</span>
+          <span className="text-xs text-slate-400">/ 100</span>
         </div>
       </div>
 
       <div className="grid gap-8 md:grid-cols-2">
-        {/* Earnings Slider */}
+        {/* Earnings Slider (35%) */}
         <div className="space-y-3">
           <div className="flex justify-between items-end">
             <label htmlFor="totalEarnings" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-              Earnings Stability
+              Total Earnings (35% weight)
             </label>
             <span className="text-sm font-mono text-slate-500">${metrics.totalEarnings.toFixed(0)}</span>
           </div>
@@ -63,11 +64,55 @@ export default function ScoreSimulator({ initialMetrics }) {
           <p className="text-[10px] uppercase tracking-wider text-slate-400">Target: ${SCORE_CONFIG.earningsTarget}</p>
         </div>
 
-        {/* Consistency Slider */}
+        {/* Jobs Completed Slider (25%) */}
+        <div className="space-y-3">
+          <div className="flex justify-between items-end">
+            <label htmlFor="jobsCompleted" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              Jobs Completed (25% weight)
+            </label>
+            <span className="text-sm font-mono text-slate-500">{metrics.jobsCompleted} jobs</span>
+          </div>
+          <input
+            type="range"
+            id="jobsCompleted"
+            name="jobsCompleted"
+            min="0"
+            max="200"
+            step="1"
+            value={metrics.jobsCompleted}
+            onChange={handleChange}
+            className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700 accent-slate-900 dark:accent-slate-100"
+          />
+          <p className="text-[10px] uppercase tracking-wider text-slate-400">Target: {SCORE_CONFIG.jobsTarget} jobs</p>
+        </div>
+
+        {/* Rating Slider (30%) */}
+        <div className="space-y-3">
+          <div className="flex justify-between items-end">
+            <label htmlFor="avgRating" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              Average Rating (30% weight)
+            </label>
+            <span className="text-sm font-mono text-slate-500">{metrics.avgRating.toFixed(1)} ★</span>
+          </div>
+          <input
+            type="range"
+            id="avgRating"
+            name="avgRating"
+            min="1.0"
+            max="5.0"
+            step="0.1"
+            value={metrics.avgRating}
+            onChange={handleChange}
+            className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700 accent-slate-900 dark:accent-slate-100"
+          />
+          <p className="text-[10px] uppercase tracking-wider text-slate-400">Max: {SCORE_CONFIG.ratingMax}.0 ★</p>
+        </div>
+
+        {/* Consistency Slider (10%) */}
         <div className="space-y-3">
           <div className="flex justify-between items-end">
             <label htmlFor="activeDays" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-              Consistency (Active Days)
+              Consistency / Active Days (10% weight)
             </label>
             <span className="text-sm font-mono text-slate-500">{metrics.activeDays} days</span>
           </div>
@@ -83,50 +128,6 @@ export default function ScoreSimulator({ initialMetrics }) {
             className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700 accent-slate-900 dark:accent-slate-100"
           />
           <p className="text-[10px] uppercase tracking-wider text-slate-400">Target: {SCORE_CONFIG.activeDaysTarget} days</p>
-        </div>
-
-        {/* Rating Slider */}
-        <div className="space-y-3">
-          <div className="flex justify-between items-end">
-            <label htmlFor="avgRating" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-              Average Rating
-            </label>
-            <span className="text-sm font-mono text-slate-500">{metrics.avgRating.toFixed(1)} ★</span>
-          </div>
-          <input
-            type="range"
-            id="avgRating"
-            name="avgRating"
-            min="1.0"
-            max="5.0"
-            step="0.1"
-            value={metrics.avgRating}
-            onChange={handleChange}
-            className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700 accent-slate-900 dark:accent-slate-100"
-          />
-          <p className="text-[10px] uppercase tracking-wider text-slate-400">Max: {SCORE_CONFIG.ratingMax}.0</p>
-        </div>
-
-        {/* Platform Diversity Slider */}
-        <div className="space-y-3">
-          <div className="flex justify-between items-end">
-            <label htmlFor="platformsUsed" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-              Platform Diversity
-            </label>
-            <span className="text-sm font-mono text-slate-500">{metrics.platformsUsed}</span>
-          </div>
-          <input
-            type="range"
-            id="platformsUsed"
-            name="platformsUsed"
-            min="1"
-            max="5"
-            step="1"
-            value={metrics.platformsUsed}
-            onChange={handleChange}
-            className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700 accent-slate-900 dark:accent-slate-100"
-          />
-          <p className="text-[10px] uppercase tracking-wider text-slate-400">Target: {SCORE_CONFIG.platformsTarget} platforms</p>
         </div>
       </div>
     </div>

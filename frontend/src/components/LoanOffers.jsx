@@ -1,7 +1,9 @@
 import React from "react";
 
 const getLoanDetails = (score) => {
-  if (score >= 800) {
+  const numericScore = Number(score || 0);
+
+  if (numericScore >= 80) {
     return {
       tier: "Excellent",
       amount: "₹5,00,000",
@@ -13,16 +15,16 @@ const getLoanDetails = (score) => {
       borderTone: "border-emerald-200 dark:border-emerald-900",
       textTone: "text-emerald-700 dark:text-emerald-400",
       reasons: [
-        "High consistency score (95%+)",
-        "Exceptional earning stability",
-        "Top-tier ratings across platforms"
+        "Consistent active days across platforms",
+        "Exceptional earning stability (> ₹5,000 baseline)",
+        "Top-tier ratings across completed gigs (4.8+)"
       ],
       offsets: []
     };
   }
-  if (score >= 700) {
+  if (numericScore >= 65) {
     return {
-      tier: "Low Risk",
+      tier: "Strong",
       amount: "₹2,50,000",
       risk: "Low Risk",
       rate: "9.5%",
@@ -32,18 +34,18 @@ const getLoanDetails = (score) => {
       borderTone: "border-blue-200 dark:border-blue-900",
       textTone: "text-blue-700 dark:text-blue-400",
       reasons: [
-        "Stable earnings over 6 months",
-        "High consistency score (85%)",
-        "Strong rating history (4.8)"
+        "Consistent weekly gig completions",
+        "Stable earnings performance",
+        "Solid customer satisfaction ratings"
       ],
       offsets: [
-        "Minor platform diversity gap"
+        "Increase active working days to reach prime tier"
       ]
     };
   }
-  if (score >= 600) {
+  if (numericScore >= 50) {
     return {
-      tier: "Medium",
+      tier: "Fair",
       amount: "₹1,00,000",
       risk: "Moderate Risk",
       rate: "12.0%",
@@ -54,29 +56,28 @@ const getLoanDetails = (score) => {
       textTone: "text-amber-700 dark:text-amber-400",
       reasons: [
         "Moderate earnings stability",
-        "Acceptable consistency (60%)"
+        "Acceptable completed jobs count"
       ],
       offsets: [
-        "Recent gaps in activity",
-        "Average ratings"
+        "Recent gaps in active days",
+        "Average ratings close to threshold"
       ]
     };
   }
   return {
-    tier: "High Risk",
+    tier: "Needs Improvement",
     amount: "N/A",
     risk: "High Risk",
     rate: "N/A",
-    action: "Manual Review",
+    action: "Building Credit Profile",
     color: "bg-rose-500",
     bgTone: "bg-rose-50 dark:bg-rose-950/30",
     borderTone: "border-rose-200 dark:border-rose-900",
     textTone: "text-rose-700 dark:text-rose-400",
     reasons: [],
     offsets: [
-        "Insufficient consistency data",
-        "High earnings volatility",
-        "Below average ratings"
+      "Insufficient activity history (< 50 score)",
+      "Log more gigs and maintain high ratings to qualify"
     ]
   };
 };
@@ -92,7 +93,7 @@ export default function LoanOffers({ score }) {
           <div className="flex items-center gap-3">
             <span className={`h-2.5 w-2.5 rounded-full ${details.color}`}></span>
             <p className={`text-xs font-bold uppercase tracking-[0.2em] ${details.textTone}`}>
-              Credit Eligibility
+              Credit Eligibility (GigScore {score != null ? score : 0}/100)
             </p>
           </div>
           <h3 className="mt-2 text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100">
@@ -102,7 +103,7 @@ export default function LoanOffers({ score }) {
           <div className="mt-6 space-y-4">
             {details.reasons.length > 0 && (
               <div>
-                <p className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Reason:</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Strengths:</p>
                 <ul className="space-y-1.5">
                   {details.reasons.map((reason, idx) => (
                     <li key={idx} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
@@ -115,7 +116,7 @@ export default function LoanOffers({ score }) {
             
             {details.offsets.length > 0 && (
               <div>
-                <p className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Risk Offset:</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Growth Areas:</p>
                 <ul className="space-y-1.5">
                   {details.offsets.map((offset, idx) => (
                     <li key={idx} className="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-400">

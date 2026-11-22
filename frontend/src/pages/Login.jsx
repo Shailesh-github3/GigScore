@@ -17,7 +17,11 @@ function Login({ onUserAuthenticated }) {
     try {
       const loginResponse = await loginUser(form);
       onUserAuthenticated(loginResponse);
-      navigate("/dashboard");
+      if (loginResponse.role === "LENDER") {
+        navigate("/lenders");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error) {
       setStatus({
         loading: false,
